@@ -4,6 +4,8 @@ import ScrollToTop from '@core/components/ScrollToTop.vue'
 import initCore from '@core/initCore'
 import { initConfigStore, useConfigStore } from '@core/stores/config'
 import { hexToRgb } from '@core/utils/colorConverter'
+import { isLoading } from '@/shared/state/loading'
+import LoadingOverlay from '@/components/LoadingOverlay.vue'
 
 const { global } = useTheme()
 
@@ -16,10 +18,10 @@ const configStore = useConfigStore()
 
 <template>
   <VLocaleProvider :rtl="configStore.isAppRTL">
+     <LoadingOverlay :loading="isLoading" />
     <!-- ℹ️ This is required to set the background color of active nav link based on currently active global theme's primary -->
     <VApp :style="`--v-global-theme-primary: ${hexToRgb(global.current.value.colors.primary)}`">
       <RouterView />
-
       <ScrollToTop />
     </VApp>
   </VLocaleProvider>

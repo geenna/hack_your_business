@@ -22,7 +22,7 @@ def create_user(user: schemas.UserCreate, db: Session = Depends(auth.get_db)):
         email=user.email,
         hashed_password=hashed_password,
         userType=user.userType,
-        roles=user.roles,
+        roles=[r.model_dump() for r in user.roles],
         nome=user.nome,
         cognome=user.cognome
     )
@@ -34,6 +34,23 @@ def create_user(user: schemas.UserCreate, db: Session = Depends(auth.get_db)):
 # Role Based Endpoints
 allow_admin_only = auth.RoleChecker(["admin"])
 allow_user_only = auth.RoleChecker(["user"])
+
+
+@router.get("/users", response_model=List[schemas.UserResponse])
+def read_users(db: Session = Depends(auth.get_db)):
+    stmt = select(models.User)
+    users = db.execute(stmt).scalars().all()
+    return users
+    
+
+@router.get("/user-detail/{user_id}", response_model=schemas.UserResponse)
+def read_user_detail(user_id: str, db: Session = Depends(auth.get_db)):
+    stmt = select(models.User).where(models.User.id == user_id)
+    user = db.execute(stmt).scalars().first()
+    if not user:
+         raise HTTPException(status_code=404, detail="User not found")
+    return user
+
 
 @router.get("/admin-data")
 def read_admin_data(user: models.User = Depends(allow_admin_only)):

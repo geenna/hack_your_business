@@ -2,6 +2,7 @@
 import { VForm } from 'vuetify/components/VForm'
 import AuthProvider from '@/views/pages/authentication/AuthProvider.vue'
 import { themeConfig } from '@themeConfig'
+import AuthService from '@/services/AuthService'
 
 import tree1 from '@images/misc/tree1.png'
 import authV2LoginIllustrationBorderedDark from '@images/pages/auth-v2-login-illustration-bordered-dark.png'
@@ -50,25 +51,15 @@ const credentials = ref({
 const rememberMe = ref(false)
 
 const login = async () => {
-  /*try {
-    const res = await $api('/auth/login', {
-      method: 'POST',
-      body: {
-        email: credentials.value.email,
-        password: credentials.value.password,
-      },
-      onResponseError({ response }) {
-        errors.value = response._data.errors
-      },
-    })
+  try {
 
-    const { accessToken, userData, userAbilityRules } = res
+    const res = await AuthService.login(credentials.value)
+    const { access_token, user_data, user_ability_rules } = res.data
+    useCookie('userAbilityRules').value = user_ability_rules
+    // ability.update(userAbilityRules) // ability is commented out above, uncomment if needed
 
-    useCookie('userAbilityRules').value = userAbilityRules
-    ability.update(userAbilityRules)
-
-    useCookie('userData').value = userData
-    useCookie('accessToken').value = accessToken
+    useCookie('userData').value = user_data
+    useCookie('accessToken').value = access_token
 
     // Redirect to `to` query if exist or redirect to index route
     // ❗ nextTick is required to wait for DOM updates and later redirect
@@ -76,9 +67,15 @@ const login = async () => {
       router.replace(route.query.to ? String(route.query.to) : '/')
     })
   }
-  catch (err) {
+  catch (err: any) {
     console.error(err)
-  }*/
+    if (err.response && err.response.data) {
+        errors.value = {
+            email: err.response.data.detail,
+            password: undefined
+        }
+    }
+  }
 }
 
 const onSubmit = () => {

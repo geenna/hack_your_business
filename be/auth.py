@@ -70,7 +70,20 @@ class RoleChecker:
     def __call__(self, user: models.User = Depends(get_current_user)):
         # Check if user has ANY of the allowed roles
         # Assuming user.roles is a list of strings
-        if not any(role in self.allowed_roles for role in user.roles):
+        # Check if user has ANY of the allowed roles
+        # user.roles is a list of dicts (from JSON column)
+        # Adapt string check to look into the 'action' field or 'subject'
+        # For now, we assume allowed_roles (strings) map to 'action'
+        has_permission = False
+        if user.roles:
+            for role in user.roles:
+                # Handle dict (DB) or object (Pydantic)
+                r_action = role.get("action") if isinstance(role, dict) else getattr(role, "action", None)
+                if r_action in self.allowed_roles:
+                    has_permission = True
+                    break
+        
+        if not has_permission:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN, 
                 detail="Operation not permitted"

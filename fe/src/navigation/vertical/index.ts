@@ -1,12 +1,27 @@
 export default [
   {
-    title: 'Home',
-    to: { name: 'root' },
+    title: 'Dashboard',
     icon: { icon: 'ri-home-smile-line' },
+    to: { name: 'root' },
   },
   {
-    title: 'Second page',
-    to: { name: 'second-page' },
+    title: 'Utenti',
+    to: { name: 'users-main' },
+    icon: { icon: 'ri-group-line' },
+  },
+  {
+    title: 'Progetti',
+    target: '_blank',
     icon: { icon: 'ri-file-text-line' },
   },
+  {
+    title: 'CoWork',
+    target: '_blank',
+    icon: { icon: 'ri-file-text-line' },
+  },
+  {
+    title: 'Pagamenti',
+
+    target: '_blank',
+  }
 ]

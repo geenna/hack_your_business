@@ -9,6 +9,6 @@ class User(Base):
     email = Column(String, unique=True, index=True)
     hashed_password = Column(String)
     userType = Column(String)
-    roles = Column(JSON) # List[str] stored as JSON
+    roles = Column(JSON) # List[dict] stored as JSON: [{action: str, subject: str}]
     nome = Column(String)
     cognome = Column(String)

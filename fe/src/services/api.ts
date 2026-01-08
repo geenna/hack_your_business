@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { useCookie } from '@core/composable/useCookie';
 import { startLoading, stopLoading } from '@/shared/state/loading';
-import router from '@/router';
+import { router } from '@/plugins/1.router';
 
 const api = axios.create({
     baseURL: import.meta.env.VITE_API_URL,
@@ -34,7 +34,8 @@ api.interceptors.response.use(
     },
     async (error) => {
         stopLoading()
-        if (error.response && error.response.status === 401) {
+        if (error.response && (error.response.status === 401
+            || error.response.status === 403)) {
             // Token expired or invalid
             // Clear the cookie
             const token = useCookie('accessToken');
@@ -43,8 +44,7 @@ api.interceptors.response.use(
             // Optional: Also clear user data
             useCookie('userData').value = null;
             useCookie('userAbilityRules').value = null;
-
-            router.replace('/login')
+            router.push('/not-authorized')
         }
         return Promise.reject(error);
     }

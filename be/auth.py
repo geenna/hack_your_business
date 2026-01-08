@@ -78,11 +78,12 @@ class RoleChecker:
         if user.roles:
             for role in user.roles:
                 # Handle dict (DB) or object (Pydantic)
-                r_action = role.get("action") if isinstance(role, dict) else getattr(role, "action", None)
+                r_action = role.get("subject") if isinstance(role, dict) else getattr(role, "subject", None)
                 if r_action in self.allowed_roles:
                     has_permission = True
                     break
         
+
         if not has_permission:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN, 

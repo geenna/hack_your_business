@@ -32,12 +32,12 @@ def create_user(user: schemas.UserCreate, db: Session = Depends(auth.get_db)):
     return db_user
 
 # Role Based Endpoints
-allow_admin_only = auth.RoleChecker(["admin"])
+allow_admin_only = auth.RoleChecker(["manage"])
 allow_user_only = auth.RoleChecker(["user"])
 
 
 @router.get("/users", response_model=List[schemas.UserResponse])
-def read_users(db: Session = Depends(auth.get_db)):
+def read_users(db: Session = Depends(auth.get_db), user: models.User = Depends(auth.RoleChecker(["manage"]))):
     stmt = select(models.User)
     users = db.execute(stmt).scalars().all()
     return users

@@ -37,7 +37,6 @@ const totalUsers = computed(() => 100)
 // 👉 search filters
 const roles = [
   { title: 'Amministratore', value: 'admin' },
-  { title: 'CoWorker', value: 'coworker' },
   { title: 'Collaboratore', value: 'collaboratore' },
   { title: 'Cliente', value: 'cliente' },
 ]
@@ -54,8 +53,6 @@ const resolveUserRoleVariant = (role: string) => {
     return { color: 'success', icon: 'ri-user-line' }
   if (roleLowerCase === 'collaboratore')
     return { color: 'info', icon: 'ri-pie-chart-line' }
-  if (roleLowerCase === 'coworker')
-    return { color: 'warning', icon: 'ri-edit-box-line' }
   if (roleLowerCase === 'admin')
     return { color: 'primary', icon: 'ri-vip-crown-line' }
 

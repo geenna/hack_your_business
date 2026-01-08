@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, APIRouter
 from .persistence.model import UserModel as user_models
 from .persistence.model import PaymentModel as payment_models
 from .persistence.model import ProjectModel as project_models
@@ -19,10 +19,13 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(auth.router)
-app.include_router(users.router)
-app.include_router(payments.router)
-app.include_router(test_service.router)
+api_router = APIRouter(prefix="/api")
+api_router.include_router(auth.router)
+api_router.include_router(users.router)
+api_router.include_router(payments.router)
+api_router.include_router(test_service.router)
+
+app.include_router(api_router)
 
 @app.get("/")
 def read_root():

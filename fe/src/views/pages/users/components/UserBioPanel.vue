@@ -63,7 +63,7 @@ const standardPlan = {
 const isUserInfoEditDialogVisible = ref(false)
 const isUpgradePlanDialogVisible = ref(false)
 
-const resolveUserStatusVariant = stat => {
+const resolveUserStatusVariant = (stat: string) => {
   if (stat === 'pending')
     return 'warning'
   if (stat === 'ATTIVO')
@@ -76,7 +76,7 @@ const resolveUserStatusVariant = stat => {
 
 
 
-const resolveUserRoleVariant = role => {
+const resolveUserRoleVariant = (role: string) => {
 
   if (role === 'cliente')
     return { color: 'success', icon: 'ri-user-line' }

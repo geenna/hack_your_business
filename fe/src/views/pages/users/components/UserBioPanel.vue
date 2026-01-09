@@ -5,6 +5,7 @@ import type { UserDetail } from '@/types/UserProperties'
 import { useConfirm } from '@/shared/state/confirm'
 import { useAlert } from '@/shared/state/alert'
 import UserService from '@/services/UserService'
+import CreateUserDialog from '../CreateUserDialog.vue'
 
 const { show: showConfirm } = useConfirm()
 const { show: showAlert } = useAlert()
@@ -62,6 +63,11 @@ const standardPlan = {
 
 const isUserInfoEditDialogVisible = ref(false)
 const isUpgradePlanDialogVisible = ref(false)
+
+const onUserUpdate = async (updatedUser: any) => {
+    Object.assign(props.userData, updatedUser)
+    showAlert('Successo', 'Dati utente aggiornati con successo', 'success')
+}
 
 const resolveUserStatusVariant = (stat: string) => {
   if (stat === 'pending')
@@ -262,9 +268,16 @@ const resolveUserRoleVariant = (role: string) => {
     </VCol>
     <!-- !SECTION -->
 
-   
+    <!-- !SECTION -->
+
+    
   </VRow>
 
+  <CreateUserDialog
+    v-model:is-dialog-visible="isUserInfoEditDialogVisible"
+    :user-data="props.userData"
+    @submit="onUserUpdate"
+  />
 
 
 </template>

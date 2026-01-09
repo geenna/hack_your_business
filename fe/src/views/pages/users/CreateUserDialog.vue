@@ -4,6 +4,7 @@ import { requiredValidator } from '@core/utils/validators'
 import UserService from '@/services/UserService'
 
 interface UserData {
+  id?: string
   nome: string
   cognome: string
   email: string
@@ -71,18 +72,28 @@ const refForm = ref<VForm>()
 const onSubmit = () => {
   refForm.value?.validate().then(({ valid: isValid }) => {
     if (isValid) {
-      const userToSave = {
-        ...userData.value,
-        password: 'Password@123', // Default password
-        roles: []                  // Default roles (backend handles logic)
+      if (userData.value.id) {
+         UserService.updateUser(userData.value.id, userData.value).then(() => {
+          emit('submit', userData.value)
+          emit('update:isDialogVisible', false)
+        }).catch(error => {
+          console.error("Error updating user:", error)
+          // Optionally handle error (e.g. show notification)
+        })
+      } else {
+        const userToSave = {
+          ...userData.value,
+          password: 'Password@123', // Default password
+          roles: []                  // Default roles (backend handles logic)
+        }
+        UserService.createUser(userToSave).then(() => {
+          emit('submit', userData.value)
+          emit('update:isDialogVisible', false)
+        }).catch(error => {
+          console.error("Error creating user:", error)
+          // Optionally handle error (e.g. show notification)
+        })
       }
-      UserService.createUser(userToSave).then(() => {
-        emit('submit', userData.value)
-        emit('update:isDialogVisible', false)
-      }).catch(error => {
-        console.error("Error creating user:", error)
-        // Optionally handle error (e.g. show notification)
-      })
     }
   })
 }
@@ -105,7 +116,7 @@ const onSubmit = () => {
       <VCardText class="pt-5">
         <div class="text-center pb-6">
           <h4 class="text-h4 mb-2">
-            Crea nuovo utente
+            {{ userData.id ? 'Modifica utente' : 'Crea nuovo utente' }}
           </h4>
         </div>
 

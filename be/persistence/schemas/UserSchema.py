@@ -1,9 +1,6 @@
 from pydantic import BaseModel, EmailStr
 from typing import List, Optional
 
-class UserBase(BaseModel):
-    email: EmailStr
-    userType: str
 
 class Role(BaseModel):
     action: str
@@ -29,6 +26,9 @@ class UserBase(BaseModel):
 
 class UserCreate(UserBase):
     password: str
+
+class UserUpdate(UserBase):
+    password: Optional[str] = None
 
 class UserResponse(UserBase):
     id: str

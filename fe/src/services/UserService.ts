@@ -16,4 +16,8 @@ export default {
     async activateUser(id: string) {
         return api.put(`/users/${id}/activate`)
     },
+    async updateUser(id: string, user: any) {
+        return api.put(`/users/${id}`, user)
+    },
+
 }

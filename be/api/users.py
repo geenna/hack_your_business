@@ -48,6 +48,25 @@ def create_user(user: schemas.UserCreate, db: Session = Depends(auth.get_db), cu
     db.refresh(db_user)
     return db_user
 
+@router.put("/users/{user_id}", response_model=schemas.UserResponse)
+def update_user(user_id: str, user: schemas.UserUpdate, db: Session = Depends(auth.get_db), current_user: models.User = Depends(allow_admin_only)):
+    stmt = select(models.User).where(models.User.id == user_id)
+    db_user = db.execute(stmt).scalars().first()
+    if not db_user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    # Update fields
+    user_data = user.dict(exclude_unset=True)
+    for key, value in user_data.items():
+        if key == 'password' and value:
+             setattr(db_user, 'hashed_password', auth.get_password_hash(value))
+        elif key != 'password':
+             setattr(db_user, key, value)
+
+    db.commit()
+    db.refresh(db_user)
+    return db_user
+
 @router.put("/users/{user_id}/suspend", response_model=schemas.UserResponse)
 def suspend_user(user_id: str, db: Session = Depends(auth.get_db), current_user: models.User = Depends(allow_admin_only)):
     stmt = select(models.User).where(models.User.id == user_id)

@@ -12,6 +12,7 @@ import authV2LoginIllustrationLight from '@images/pages/auth-v2-login-illustrati
 import authV2MaskDark from '@images/pages/mask-v2-dark.png'
 import authV2MaskLight from '@images/pages/mask-v2-light.png'
 import { VNodeRenderer } from '@layouts/components/VNodeRenderer'
+import { useAbility } from '@/plugins/casl/composables/useAbility'
 
 const authThemeImg = useGenerateImageVariant(
   authV2LoginIllustrationLight,
@@ -34,7 +35,7 @@ const isPasswordVisible = ref(false)
 const route = useRoute()
 const router = useRouter()
 
-//const ability = useAbility()
+const ability = useAbility()
 
 const errors = ref<Record<string, string | undefined>>({
   email: undefined,
@@ -56,7 +57,7 @@ const login = async () => {
     const res = await AuthService.login(credentials.value)
     const { access_token, user_data, user_ability_rules } = res.data
     useCookie('userAbilityRules').value = user_ability_rules
-    // ability.update(userAbilityRules) // ability is commented out above, uncomment if needed
+    ability.update(user_ability_rules)
     useCookie('userData').value = user_data
     useCookie('accessToken').value = access_token
 

@@ -13,6 +13,9 @@ export default [
     title: 'Progetti',
     target: '_blank',
     icon: { icon: 'ri-file-text-line' },
+    action: 'all',
+    subject: 'project',
+
   },
   {
     title: 'CoWork',

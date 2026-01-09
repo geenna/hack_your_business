@@ -45,7 +45,8 @@ api.interceptors.response.use(
             // Optional: Also clear user data
             useCookie('userData').value = null;
             useCookie('userAbilityRules').value = null;
-            router.push('/not-authorized')
+            // Force reload to ensure clean state
+            window.location.replace('/not-authorized')
         }
         else {
             const { show } = useAlert()

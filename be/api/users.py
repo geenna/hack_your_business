@@ -8,7 +8,7 @@ from ..persistence.schemas import UserSchema as schemas
 
 
 # Role Based Endpoints
-allow_admin_only = auth.RoleChecker(["manage"])
+allow_admin_only = auth.RoleChecker(["all"])
 allow_user_only = auth.RoleChecker(["user"])
 
 
@@ -18,7 +18,7 @@ router = APIRouter(
 )
 
 @router.post("/users", response_model=schemas.UserResponse)
-def create_user(user: schemas.UserCreate, db: Session = Depends(auth.get_db), current_user: models.User = Depends(auth.RoleChecker(["manage"]))):
+def create_user(user: schemas.UserCreate, db: Session = Depends(auth.get_db), current_user: models.User = Depends(allow_admin_only)):
     stmt = select(models.User).where(models.User.email == user.email)
     db_user = db.execute(stmt).scalars().first()
     if db_user:
@@ -49,7 +49,7 @@ def create_user(user: schemas.UserCreate, db: Session = Depends(auth.get_db), cu
     return db_user
 
 @router.put("/users/{user_id}/suspend", response_model=schemas.UserResponse)
-def suspend_user(user_id: str, db: Session = Depends(auth.get_db), current_user: models.User = Depends(auth.RoleChecker(["manage"]))):
+def suspend_user(user_id: str, db: Session = Depends(auth.get_db), current_user: models.User = Depends(allow_admin_only)):
     stmt = select(models.User).where(models.User.id == user_id)
     db_user = db.execute(stmt).scalars().first()
     if not db_user:
@@ -61,7 +61,7 @@ def suspend_user(user_id: str, db: Session = Depends(auth.get_db), current_user:
     return db_user
     
 @router.put("/users/{user_id}/activate", response_model=schemas.UserResponse)
-def activate_user(user_id: str, db: Session = Depends(auth.get_db), current_user: models.User = Depends(auth.RoleChecker(["manage"]))):
+def activate_user(user_id: str, db: Session = Depends(auth.get_db), current_user: models.User = Depends(allow_admin_only)):
     stmt = select(models.User).where(models.User.id == user_id)
     db_user = db.execute(stmt).scalars().first()
     if not db_user:
@@ -75,7 +75,7 @@ def activate_user(user_id: str, db: Session = Depends(auth.get_db), current_user
 
 
 @router.get("/users", response_model=List[schemas.UserResponse])
-def read_users(db: Session = Depends(auth.get_db), user: models.User = Depends(auth.RoleChecker(["manage"]))):
+def read_users(db: Session = Depends(auth.get_db), user: models.User = Depends(allow_admin_only)):
     stmt = select(models.User)
     users = db.execute(stmt).scalars().all()
     return users

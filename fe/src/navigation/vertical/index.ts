@@ -15,7 +15,6 @@ export default [
     icon: { icon: 'ri-file-text-line' },
     action: 'all',
     subject: 'project',
-
   },
   {
     title: 'CoWork',

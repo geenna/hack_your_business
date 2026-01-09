@@ -13,7 +13,7 @@ router = APIRouter(
 )
 
 @router.post("/token", response_model=schemas.Token)
-async def login_for_access_token(user_login: schemas.UserLogin, db: Session = Depends(auth.get_db)):
+def login_for_access_token(user_login: schemas.UserLogin, db: Session = Depends(auth.get_db)):
     stmt = select(models.User).where(models.User.email == user_login.username)
     user = db.execute(stmt).scalars().first()
     if not user or not auth.verify_password(user_login.password, user.hashed_password):

@@ -1,68 +1,49 @@
 <script setup lang="ts">
-import chrome from '@images/logos/chrome.png'
+import { useAlert } from '@/shared/state/alert'
+import UserService from '@/services/UserService'
+
+const { show: showAlert } = useAlert()
+const selectedUserID = inject('selectedUserID') as Ref<string>
 
 const isNewPasswordVisible = ref(false)
 const isConfirmPasswordVisible = ref(false)
-const smsVerificationNumber = ref('')
-const isTwoFactorDialogOpen = ref(false)
 
-// Recent devices Headers
-const recentDeviceHeader = [
-  {
-    title: 'BROWSER',
-    key: 'browser',
-  },
-  {
-    title: 'DEVICE',
-    key: 'device',
-  },
-  {
-    title: 'LOCATION',
-    key: 'location',
-  },
-  {
-    title: 'RECENT ACTIVITY',
-    key: 'activity',
-  },
-]
+const newPassword = ref('')
+const confirmPassword = ref('')
+const errors = ref({
+  passwordMatch: '',
+})
 
-const recentDevices = [
-  {
-    browser: 'Chrome on Windows',
-    logo: chrome,
-    device: 'Dell XPS 15',
-    location: 'United States',
-    activity: '10, Jan 2020 20:07',
-  },
-  {
-    browser: 'Chrome on Android',
-    logo: chrome,
-    device: 'Google Pixel 3a',
-    location: 'Ghana',
-    activity: '11, Jan 2020 10:16',
-  },
-  {
-    browser: 'Chrome on macOS',
-    logo: chrome,
-    device: 'Apple iMac',
-    location: 'Mayotte',
-    activity: '11, Jan 2020 12:10',
-  },
-  {
-    browser: 'Chrome on iPhone',
-    logo: chrome,
-    device: 'Apple iPhone XR',
-    location: 'Mauritania',
-    activity: '12, Jan 2020 8:29',
-  },
-]
+const onSubmit = async () => {
+  errors.value.passwordMatch = ''
+  
+  if (newPassword.value !== confirmPassword.value) {
+    errors.value.passwordMatch = 'Le password non corrispondono'
+    return
+  }
+  
+  if (newPassword.value.length < 8) {
+    errors.value.passwordMatch = 'La password deve essere di almeno 8 caratteri'
+    return
+  }
+
+  try {
+    await UserService.changePassword(selectedUserID.value, newPassword.value)
+    showAlert('Successo', 'Password aggiornata con successo', 'success')
+    newPassword.value = ''
+    confirmPassword.value = ''
+  } catch (error) {
+    console.error(error)
+    showAlert('Errore', 'Errore durante l\'aggiornamento della password', 'error')
+  }
+}
 </script>
 
 <template>
   <VRow>
     <VCol cols="12">
       <!-- 👉 Change password -->
-      <VCard title="Change Password">
+      <VCard title="Cambia Password">
         <VCardText>
           <VAlert
             variant="tonal"
@@ -70,21 +51,23 @@ const recentDevices = [
             closable
             class="mb-6"
           >
-            <VAlertTitle>Ensure that these requirements are met</VAlertTitle>
-            <span>Minimum 8 characters long, uppercase & symbol</span>
+            <VAlertTitle>Assicurati di usare una password complessa</VAlertTitle>
+            <span>Minimo 8 caratteri, maiuscole e minuscole, numeri e simboli</span>
           </VAlert>
 
-          <VForm @submit.prevent="() => {}">
+          <VForm @submit.prevent="onSubmit">
             <VRow>
               <VCol
                 cols="12"
                 md="6"
               >
                 <VTextField
+                  v-model="newPassword"
                   label="New Password"
                   placeholder="············"
                   :type="isNewPasswordVisible ? 'text' : 'password'"
                   :append-inner-icon="isNewPasswordVisible ? 'ri-eye-off-line' : 'ri-eye-line'"
+                  :error-messages="errors.passwordMatch"
                   @click:append-inner="isNewPasswordVisible = !isNewPasswordVisible"
                 />
               </VCol>
@@ -93,6 +76,7 @@ const recentDevices = [
                 md="6"
               >
                 <VTextField
+                  v-model="confirmPassword"
                   label="Confirm Password"
                   autocomplete="confirm-password"
                   placeholder="············"
@@ -104,7 +88,7 @@ const recentDevices = [
 
               <VCol cols="12">
                 <VBtn type="submit">
-                  Change Password
+                  Cambia Password
                 </VBtn>
               </VCol>
             </VRow>
@@ -112,88 +96,5 @@ const recentDevices = [
         </VCardText>
       </VCard>
     </VCol>
-
-    <VCol cols="12">
-      <!-- 👉 Two step verification -->
-      <VCard
-        title="Two-step verification"
-        subtitle="Keep your account secure with authentication step."
-      >
-        <VCardText>
-          <div>
-            <h4 class="font-weight-medium mb-1">
-              SMS
-            </h4>
-            <div class="d-flex gap-5">
-              <VTextField
-                placeholder="+1(968) 819-2547"
-                density="compact"
-              />
-              <div>
-                <IconBtn
-                  rounded
-                  variant="outlined"
-                  color="secondary"
-                  class="me-2"
-                >
-                  <VIcon
-                    icon="ri-edit-box-line"
-                    @click="isTwoFactorDialogOpen = true"
-                  />
-                </IconBtn>
-
-                <IconBtn
-                  rounded
-                  variant="outlined"
-                  color="secondary"
-                >
-                  <VIcon icon="ri-user-add-line" />
-                </IconBtn>
-              </div>
-            </div>
-          </div>
-
-          <p class="mb-0 mt-4">
-            Two-factor authentication adds an additional layer of security to your account by requiring more than just a password to log in. <a
-              href="javascript:void(0)"
-              class="text-decoration-none"
-            >Learn more</a>.
-          </p>
-        </VCardText>
-      </VCard>
-    </VCol>
-
-    <VCol cols="12">
-      <!-- 👉 Recent devices -->
-      <VCard title="Recent devices">
-        <VDataTable
-          :items="recentDevices"
-          :headers="recentDeviceHeader"
-          hide-default-footer
-          class="text-no-wrap rounded-0"
-        >
-          <template #item.browser="{ item }">
-            <div class="d-flex align-center">
-              <VAvatar
-                :image="item.logo"
-                :size="22"
-                class="me-3"
-              />
-              <h6 class="text-h6 font-weight-medium">
-                {{ item.browser }}
-              </h6>
-            </div>
-          </template>
-          <!-- TODO Refactor this after vuetify provides proper solution for removing default footer -->
-          <template #bottom />
-        </VDataTable>
-      </VCard>
-    </VCol>
   </VRow>
-
-  <!-- 👉 Enable One Time Password Dialog -->
-  <TwoFactorAuthDialog
-    v-model:is-dialog-visible="isTwoFactorDialogOpen"
-    :sms-code="smsVerificationNumber"
-  />
 </template>

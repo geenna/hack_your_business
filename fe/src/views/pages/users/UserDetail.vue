@@ -11,7 +11,8 @@ import UserTabConnections from '@/views/pages/users/components/UserTabConnection
 import type { UserDetail } from '@/types/UserProperties'
 
 const selectedUserID = inject('selectedUserID') as Ref<string>
-const userData = ref<UserDetail>()
+
+
 const userTab = ref(null)
 
 const emit = defineEmits(['onBack'])
@@ -39,6 +40,8 @@ const tabs = [
   },
 ]
 
+const userData = ref<UserDetail>()
+provide('userData', userData)
 
 watch(selectedUserID, async (newId) => {
     if (newId) {
@@ -46,6 +49,9 @@ watch(selectedUserID, async (newId) => {
         userData.value = response.data
     }
 }, { immediate: true })
+
+
+
 </script>
 
 <template>
@@ -56,7 +62,7 @@ watch(selectedUserID, async (newId) => {
       md="5"
       lg="4"
     >
-      <UserBioPanel :user-data="userData" />
+      <UserBioPanel />
     </VCol>
 
     <VCol
@@ -94,7 +100,7 @@ watch(selectedUserID, async (newId) => {
         </VWindowItem>
 
         <VWindowItem>
-          <UserTabBillingsPlans />
+           <UserTabConnections />
         </VWindowItem>
 
         <VWindowItem>
@@ -102,7 +108,7 @@ watch(selectedUserID, async (newId) => {
         </VWindowItem>
 
         <VWindowItem>
-          <UserTabConnections />
+          <UserTabBillingsPlans :user-data="userData" />
         </VWindowItem>
       </VWindow>
     </VCol>

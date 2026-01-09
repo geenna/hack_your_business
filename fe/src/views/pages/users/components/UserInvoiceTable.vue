@@ -46,16 +46,7 @@ const headers = [
 const {
   data: invoiceData,
   execute: fetchInvoices,
-} = await useApi(createUrl('/apps/invoice', {
-  query: {
-    q: searchQuery,
-    status: selectedStatus,
-    itemsPerPage,
-    page,
-    sortBy,
-    orderBy,
-  },
-}))
+} = {}
 
 const invoices = computed(() => invoiceData.value?.invoices)
 const totalInvoices = computed(() => invoiceData.value?.totalInvoices)

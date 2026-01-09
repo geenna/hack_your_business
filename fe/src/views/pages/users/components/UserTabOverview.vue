@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useTheme } from 'vuetify'
-import UserInvoiceTable from './UserInvoiceTable.vue'
+//import UserInvoiceTable from './UserInvoiceTable.vue'
 import pdf from '@images/icons/project-icons/pdf.png'
 import avatar2 from '@images/avatars/avatar-2.png'
 import avatar3 from '@images/avatars/avatar-3.png'
@@ -292,7 +292,7 @@ const search = ref('')
     </VCol>
 
     <VCol cols="12">
-      <UserInvoiceTable />
+      
     </VCol>
   </VRow>
 </template>

@@ -1,7 +1,11 @@
+import { BillingAddress } from "./BillingAddress"
+
 export interface Role {
   action: string
   subject: string
 }
+
+
 
 export interface UserDetail {
   id: string
@@ -21,6 +25,7 @@ export interface UserDetail {
   avatar: string
   stato: string
   user_status: string
+  billing_address?: BillingAddress
 }
 
 // Keep UserProperties for backward compatibility if needed, or alias it

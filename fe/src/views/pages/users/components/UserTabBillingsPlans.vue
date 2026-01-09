@@ -1,250 +1,49 @@
 <script setup lang="ts">
-import americanExpress from '@images/icons/payments/american-express.png'
-import mastercard from '@images/icons/payments/mastercard.png'
-import visa from '@images/icons/payments/visa.png'
+import { UserDetail } from '@/types/UserProperties'
+import { BillingAddress } from '@/types/BillingAddress'
+import { useAlert } from '@/shared/state/alert'
+import PaymentService from '@/services/PaymentService'
 
-const isUpgradePlanDialogVisible = ref(false)
-const currentCardDetails = ref()
-const isCardEditDialogVisible = ref(false)
-const isCardAddDialogVisible = ref(false)
+const { show: showAlert } = useAlert()
+
 const isEditAddressDialogVisible = ref(false)
+const userData = inject('userData') as Ref<UserDetail | undefined>
+const billingAddress = ref<BillingAddress | undefined>(userData.value?.billing_address)
 
-const openEditCardDialog = cardDetails => {
-  currentCardDetails.value = cardDetails
-  isCardEditDialogVisible.value = true
+watch(userData, () => {
+  billingAddress.value = userData.value?.billing_address
+}, { immediate: true })
+
+const onAddressSubmit = async (addressData: BillingAddress) => {
+  try {
+    const updatedAddress = await PaymentService.saveBillingAddress(addressData)
+    // Update local state
+    billingAddress.value = updatedAddress.data
+    // Update injected userData if possible (it's a ref so it should propagate if we mutate value)
+    if (userData.value) {
+      userData.value.billing_address = updatedAddress.data
+    }
+    showAlert('Successo', 'Indirizzo di fatturazione aggiornato con successo', 'success')
+  } catch (error) {
+    console.error('Failed to save billing address:', error)
+    // Alert is handled by interceptor usually, but safe to log
+  }
 }
 
-const creditCards = [
-  {
-    name: 'Tom McBride',
-    number: '4851234567899865',
-    expiry: '12/24',
-    isPrimary: true,
-    type: 'mastercard',
-    cvv: '123',
-    image: mastercard,
-  },
-  {
-    name: 'Mildred Wagner',
-    number: '5531234567895678',
-    expiry: '02/24',
-    isPrimary: false,
-    type: 'visa',
-    cvv: '456',
-    image: visa,
-  },
-  {
-    name: 'Lester Jennings',
-    number: '5531234567890002',
-    expiry: '08/20',
-    isPrimary: false,
-    type: 'visa',
-    cvv: '456',
-    image: americanExpress,
-  },
-]
-
-const currentBillingAddress = {
-  companyName: 'ThemeSelection',
-  billingEmail: 'gertrude@gmail.com',
-  taxID: 'TAX-875623',
-  vatNumber: 'SDF754K77',
-  address: '100 Water Plant Avenue, Building 1303 Wake Island',
-  contact: '+1(609) 933-44-22',
-  country: 'USA',
-  state: 'Queensland',
-  zipCode: 403114,
-  firstName: 'John',
-  lastName: 'Doe',
-  selectedCountry: 'USA',
-  addressLine1: '100 Water Plant Avenue',
-  addressLine2: 'Building 1303 Wake Island',
-  landmark: 'Near Wake Island',
-}
-
-const editBillingData = {
-  firstName: 'Gertrude',
-  lastName: 'Jennings',
-  selectedCountry: 'USA',
-  addressLine1: '100 Water Plant Avenue',
-  addressLine2: 'Building 1303 Wake Island',
-  landmark: 'Near Wake Island',
-  contact: '+1(609) 933-44-22',
-  country: 'USA',
-  state: 'Queensland',
-  zipCode: 403114,
-}
 </script>
 
 <template>
   <VRow>
-    <!-- 👉 Current Plan -->
-    <VCol cols="12">
-      <VCard title="Current Plan">
-        <VCardText>
-          <VRow>
-            <VCol
-              cols="12"
-              md="6"
-            >
-              <h6 class="text-h6 mb-1">
-                Your Current Plan is Basic
-              </h6>
-              <p>A simple start for everyone</p>
-
-              <h6 class="text-h6 mb-1">
-                Active until Dec 09, 2021
-              </h6>
-              <p>We will send you a notification upon Subscription expiration</p>
-
-              <h6 class="text-h6 mb-1">
-                <span class="me-3">$199 Per Month</span>
-                <VChip
-                  color="primary"
-                  size="small"
-                >
-                  Popular
-                </VChip>
-              </h6>
-              <p class="mb-0">
-                Standard plan for small to medium businesses
-              </p>
-            </VCol>
-
-            <VCol
-              cols="12"
-              md="6"
-            >
-              <!-- 👉 Alert -->
-              <VAlert
-                color="warning"
-                variant="tonal"
-                icon="ri-alert-line"
-                closable
-              >
-                <VAlertTitle>We need your attention!</VAlertTitle>
-                <span>Your plan requires update</span>
-              </VAlert>
-
-              <!-- 👉 Progress -->
-              <div class="d-flex justify-space-between font-weight-bold mt-4 mb-1">
-                <h6 class="text-h6">
-                  Days
-                </h6>
-                <h6 class="text-h6">
-                  26 of 30 Days
-                </h6>
-              </div>
-
-              <VProgressLinear
-                rounded
-                color="primary"
-                :height="10"
-                :model-value="75"
-              />
-              <p class="text-sm mt-1">
-                Your plan requires update
-              </p>
-            </VCol>
-
-            <VCol cols="12">
-              <div class="d-flex flex-wrap gap-4">
-                <VBtn @click="isUpgradePlanDialogVisible = true">
-                  upgrade plan
-                </VBtn>
-
-                <VBtn
-                  color="error"
-                  variant="outlined"
-                >
-                  Cancel Subscription
-                </VBtn>
-              </div>
-            </VCol>
-          </VRow>
-        </VCardText>
-      </VCard>
-    </VCol>
-
-    <!-- 👉 Payment Methods -->
-    <VCol cols="12">
-      <VCard title="Payment Methods">
-        <template #append>
-          <VBtn
-            size="small"
-            prepend-icon="ri-add-line"
-            @click="isCardAddDialogVisible = !isCardAddDialogVisible"
-          >
-            Add Card
-          </VBtn>
-        </template>
-
-        <VCardText class="d-flex flex-column gap-y-4">
-          <VCard
-            v-for="card in creditCards"
-            :key="card.name"
-            border
-            flat
-          >
-            <VCardText class="d-flex flex-sm-row flex-column">
-              <div class="text-no-wrap">
-                <VImg
-                  :src="card.image"
-                  max-width="90"
-                  width="auto"
-                  :height="25"
-                />
-                <h6 class="text-h6 my-2">
-                  {{ card.name }}
-                  <VChip
-                    v-if="card.isPrimary"
-                    color="primary"
-                    size="small"
-                  >
-                    Primary
-                  </VChip>
-                </h6>
-                <span class="text-body-1">**** **** **** {{ card.number.substring(card.number.length - 4) }}</span>
-              </div>
-
-              <VSpacer />
-
-              <div class="d-flex flex-column text-sm-end">
-                <div class="order-sm-0 order-1">
-                  <VBtn
-                    variant="outlined"
-                    class="me-4"
-                    size="small"
-                    @click="openEditCardDialog(card)"
-                  >
-                    Edit
-                  </VBtn>
-                  <VBtn
-                    color="error"
-                    size="small"
-                    variant="outlined"
-                  >
-                    Delete
-                  </VBtn>
-                </div>
-                <span class="text-body-2 my-4 order-sm-1 order-0">Card expires at {{ card.expiry }}</span>
-              </div>
-            </VCardText>
-          </VCard>
-        </VCardText>
-      </VCard>
-    </VCol>
-
     <VCol cols="12">
       <!-- 👉 Billing Address -->
-      <VCard title="Billing Address">
+      <VCard title="Indirizzo di fatturazione">
         <template #append>
           <VBtn
             size="small"
             prepend-icon="ri-add-line"
             @click="isEditAddressDialogVisible = !isEditAddressDialogVisible"
           >
-            Edit Address
+            Modifica Indirizzo
           </VBtn>
         </template>
 
@@ -258,60 +57,38 @@ const editBillingData = {
                 <tr>
                   <td>
                     <h6 class="text-h6 text-no-wrap mb-2">
-                      Company Name:
+                      Nome Azienda:
                     </h6>
                   </td>
                   <td>
                     <p class="text-body-1 mb-2">
-                      {{ currentBillingAddress.companyName }}
+                      {{ billingAddress?.regSociale }}
                     </p>
                   </td>
                 </tr>
+
                 <tr>
                   <td>
                     <h6 class="text-h6 text-no-wrap mb-2">
-                      Billing Email:
+                      Cf / Partita iva:
                     </h6>
                   </td>
                   <td>
                     <p class="text-body-1 mb-2">
-                      {{ currentBillingAddress.billingEmail }}
+                      {{ billingAddress?.piva ?? userData?.cf }}
                     </p>
                   </td>
                 </tr>
-                <tr>
-                  <td>
-                    <h6 class="text-h6 text-no-wrap mb-2">
-                      Tax ID:
-                    </h6>
-                  </td>
-                  <td>
-                    <p class="text-body-1 mb-2">
-                      {{ currentBillingAddress.taxID }}
-                    </p>
-                  </td>
-                </tr>
-                <tr>
-                  <td>
-                    <h6 class="text-h6 text-no-wrap mb-2">
-                      VAT Number:
-                    </h6>
-                  </td>
-                  <td>
-                    <p class="text-body-1 mb-2">
-                      {{ currentBillingAddress.vatNumber }}
-                    </p>
-                  </td>
-                </tr>
+               
                 <tr>
                   <td class="d-flex align-baseline">
                     <h6 class="text-h6 text-no-wrap">
-                      Billing Address:
+                      Indirizzo:
                     </h6>
                   </td>
                   <td>
                     <p class="text-body-1 mb-0">
-                      {{ currentBillingAddress.address }}
+                      {{ billingAddress?.address ?? userData?.indirizzoResidenza }}
                     </p>
                   </td>
                 </tr>
@@ -326,36 +103,36 @@ const editBillingData = {
                 <tr>
                   <td>
                     <h6 class="text-h6 text-no-wrap mb-2">
-                      Contact:
+                      Telefono:
                     </h6>
                   </td>
                   <td>
                     <p class="text-body-1 mb-2">
-                      {{ currentBillingAddress.contact }}
+                      {{ userData?.telefono }}
                     </p>
                   </td>
                 </tr>
                 <tr>
                   <td>
                     <h6 class="text-h6 text-no-wrap mb-2">
-                      Country:
+                      Citta:
                     </h6>
                   </td>
                   <td>
                     <p class="text-body-1 mb-2">
-                      {{ currentBillingAddress.country }}
+                     {{ billingAddress?.city ?? userData?.citta }} ({{ billingAddress?.prov ?? userData?.prov }})
                     </p>
                   </td>
                 </tr>
                 <tr>
                   <td>
                     <h6 class="text-h6 text-no-wrap mb-2">
-                      State:
+                      Stato:
                     </h6>
                   </td>
                   <td>
                     <p class="text-body-1 mb-2">
-                      {{ currentBillingAddress.state }}
+                      {{ billingAddress?.stato ?? userData?.stato }}
                     </p>
                   </td>
                 </tr>
@@ -367,7 +144,7 @@ const editBillingData = {
                   </td>
                   <td>
                     <p class="text-body-1 mb-0">
-                      {{ currentBillingAddress.zipCode }}
+                      {{ billingAddress?.cap ?? userData?.cap }}
                     </p>
                   </td>
                 </tr>
@@ -379,23 +156,13 @@ const editBillingData = {
     </VCol>
   </VRow>
 
-  <!-- 👉 Edit Card Dialog -->
-  <CardAddEditDialog
-    v-model:is-dialog-visible="isCardEditDialogVisible"
-    :card-details="currentCardDetails"
-  />
-
-  <!-- 👉 Add Card Dialog -->
-  <CardAddEditDialog v-model:is-dialog-visible="isCardAddDialogVisible" />
-
   <!-- 👉 Edit Address dialog -->
+
   <AddEditAddressDialog
     v-model:is-dialog-visible="isEditAddressDialogVisible"
-    :billing-address="editBillingData"
+    @submit="onAddressSubmit"
   />
 
-  <!-- 👉 Upgrade plan dialog -->
-  <UserUpgradePlanDialog v-model:is-dialog-visible="isUpgradePlanDialogVisible" />
 </template>
 
 <style lang="scss">

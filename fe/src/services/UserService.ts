@@ -19,5 +19,8 @@ export default {
     async updateUser(id: string, user: any) {
         return api.put(`/users/${id}`, user)
     },
+    async changePassword(id: string, password: string) {
+        return api.put(`/users/${id}/change-password`, { password })
+    },
 
 }

@@ -10,23 +10,18 @@ import CreateUserDialog from '../CreateUserDialog.vue'
 const { show: showConfirm } = useConfirm()
 const { show: showAlert } = useAlert()
 
-const props = defineProps({
-  userData: {
-    type: Object as PropType<UserDetail>,
-    required: true,
-  },
-})
+const userData :UserDetail = inject('userData') as UserDetail
 
 const onSuspend = async () => {
     const confirmed = await showConfirm(
         'Sospensione Utente',
-        `Sei sicuro di voler sospendere l'utente ${props.userData.nome} ${props.userData.cognome}?`
+        `Sei sicuro di voler sospendere l'utente ${userData.nome} ${userData.cognome}?`
     )
 
     if (confirmed) {
         try {
-            await UserService.suspendUser(props.userData.id)
-            props.userData.user_status = 'DISATTIVO'
+            await UserService.suspendUser(userData.id)
+            userData.user_status = 'DISATTIVO'
             showAlert('Successo', 'Utente sospeso con successo', 'success')
         } catch (error) {
             // Error is handled by global interceptor, but we can catch specific logic here if needed
@@ -37,13 +32,13 @@ const onSuspend = async () => {
 const onActivate = async () => {
     const confirmed = await showConfirm(
         'Attivazione Utente',
-        `Sei sicuro di voler attivare l'utente ${props.userData.nome} ${props.userData.cognome}?`
+        `Sei sicuro di voler attivare l'utente ${userData.nome} ${userData.cognome}?`
     )
 
     if (confirmed) {
         try {
-            await UserService.activateUser(props.userData.id)
-            props.userData.user_status = 'ATTIVO'
+            await UserService.activateUser(userData.id)
+            userData.user_status = 'ATTIVO'
             showAlert('Successo', 'Utente attivato con successo', 'success')
         } catch (error) {
             // Error is handled by global interceptor, but we can catch specific logic here if needed
@@ -65,7 +60,7 @@ const isUserInfoEditDialogVisible = ref(false)
 const isUpgradePlanDialogVisible = ref(false)
 
 const onUserUpdate = async (updatedUser: any) => {
-    Object.assign(props.userData, updatedUser)
+    Object.assign(userData, updatedUser)
     showAlert('Successo', 'Dati utente aggiornati con successo', 'success')
 }
 
@@ -99,39 +94,39 @@ const resolveUserRoleVariant = (role: string) => {
   <VRow>
     <!-- SECTION User Details -->
     <VCol cols="12">
-      <VCard v-if="props.userData">
+      <VCard v-if="userData">
         <VCardText class="text-center pt-12 pb-6">
           <!-- 👉 Avatar -->
           <VAvatar
             rounded
             :size="120"
-            :color="!props.userData.avatar ? 'primary' : undefined"
-            :variant="!props.userData.avatar ? 'tonal' : undefined"
+            :color="!userData.avatar ? 'primary' : undefined"
+            :variant="!userData.avatar ? 'tonal' : undefined"
           >
             <VImg
-              v-if="props.userData.avatar"
-              :src="props.userData.avatar"
+              v-if="userData.avatar"
+              :src="userData.avatar"
             />
             <span
               v-else
               class="text-5xl font-weight-medium"
             >
-              {{ avatarText(props.userData.nome) }}
+              {{ avatarText(userData.nome) }}
             </span>
           </VAvatar>
 
           <!-- 👉 User fullName -->
           <h5 class="text-h5 mt-4">
-            {{ props.userData.nome }} {{ props.userData.cognome }}
+            {{ userData.nome }} {{ userData.cognome }}
           </h5>
 
             <!-- 👉 Role chip -->
           <VChip
-            :color="resolveUserRoleVariant(props.userData.userType).color"
+            :color="resolveUserRoleVariant(userData.userType).color"
             size="small"
             class="text-capitalize mt-4"
           >
-            {{ props.userData.userType }}
+            {{ userData.userType }}
           </VChip>
         </VCardText>
 
@@ -152,7 +147,7 @@ const resolveUserRoleVariant = (role: string) => {
                 <span class="font-weight-medium">
                     Email:
                 </span>
-                <span class="text-body-1">{{ props.userData.email }}</span>
+                <span class="text-body-1">{{ userData.email }}</span>
               </VListItemTitle>
             </VListItem>
 
@@ -163,10 +158,10 @@ const resolveUserRoleVariant = (role: string) => {
                 </span>
                 <VChip
                   size="small"
-                  :color="resolveUserStatusVariant(props.userData.user_status)"
+                  :color="resolveUserStatusVariant(userData.user_status)"
                   class="text-capitalize"
                 >
-                  {{ props.userData.user_status }}
+                  {{ userData.user_status }}
                 </VChip>
               </VListItemTitle>
             </VListItem>
@@ -176,7 +171,7 @@ const resolveUserRoleVariant = (role: string) => {
                   Codice Fiscale:
                 </span>
                 <span class="text-body-1">
-                  {{ props.userData.cf }}
+                  {{ userData.cf }}
                 </span>
               </VListItemTitle>
             </VListItem>
@@ -187,7 +182,7 @@ const resolveUserRoleVariant = (role: string) => {
                   Indirizzo:
                 </span>
                 <span class="text-body-1">
-                  {{ props.userData.indirizzoResidenza }}
+                  {{ userData.indirizzoResidenza }}
                 </span>
               </VListItemTitle>
             </VListItem>
@@ -198,29 +193,29 @@ const resolveUserRoleVariant = (role: string) => {
                   Città:
                 </span>
                 <span class="text-body-1">
-                  {{ props.userData.citta }} ({{ props.userData.prov }}) - {{ props.userData.cap }}
+                  {{ userData.citta }} ({{ userData.prov }}) - {{ userData.cap }}
                 </span>
               </VListItemTitle>
             </VListItem>
 
-            <VListItem v-if="props.userData.regioneSociale">
+            <VListItem v-if="userData.regioneSociale">
               <VListItemTitle class="text-sm">
                 <span class="font-weight-medium">
                   Ragione Sociale:
                 </span>
                 <span class="text-body-1">
-                  {{ props.userData.regioneSociale }}
+                  {{ userData.regioneSociale }}
                 </span>
               </VListItemTitle>
             </VListItem>
 
-            <VListItem v-if="props.userData.piva">
+            <VListItem v-if="userData.piva">
               <VListItemTitle class="text-sm">
                 <span class="font-weight-medium">
                   P.IVA:
                 </span>
                 <span class="text-body-1">
-                  {{ props.userData.piva }}
+                  {{ userData.piva }}
                 </span>
               </VListItemTitle>
             </VListItem>
@@ -231,7 +226,7 @@ const resolveUserRoleVariant = (role: string) => {
                    Telefono:
                 </span>
                 <span class="text-body-1">
-                  {{ props.userData.telefono }}
+                  {{ userData.telefono }}
                 </span>
               </VListItemTitle>
             </VListItem>
@@ -248,7 +243,7 @@ const resolveUserRoleVariant = (role: string) => {
             Modifica
           </VBtn>
           <VBtn
-            v-if="props.userData.user_status === 'ATTIVO'"
+            v-if="userData.user_status === 'ATTIVO'"
             variant="outlined"
             color="error"
             @click="onSuspend"
@@ -256,7 +251,7 @@ const resolveUserRoleVariant = (role: string) => {
             Sospendi
           </VBtn>
           <VBtn
-            v-if="props.userData.user_status === 'DISATTIVO'"
+            v-if="userData.user_status === 'DISATTIVO'"
             variant="outlined"
             color="success"
             @click="onActivate"
@@ -275,7 +270,7 @@ const resolveUserRoleVariant = (role: string) => {
 
   <CreateUserDialog
     v-model:is-dialog-visible="isUserInfoEditDialogVisible"
-    :user-data="props.userData"
+    :user-data="userData"
     @submit="onUserUpdate"
   />
 

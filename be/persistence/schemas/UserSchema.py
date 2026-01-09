@@ -27,6 +27,9 @@ class UserBase(BaseModel):
 class UserCreate(UserBase):
     password: str
 
+class UserPasswordChange(BaseModel):
+    password: str
+
 class UserUpdate(UserBase):
     password: Optional[str] = None
 
@@ -50,5 +53,8 @@ class UserLogin(BaseModel):
     password: str
 
 
+from .BillingAddressSchema import BillingAddressSchema
+
 class UserDetailResponse(UserBase):
     id: str
+    billing_address: Optional[BillingAddressSchema] = None

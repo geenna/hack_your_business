@@ -1,70 +1,50 @@
 <script setup lang="ts">
-interface BillingAddress {
-  firstName: string | undefined
-  lastName: string | undefined
-  selectedCountry: string | null
-  addressLine1: string
-  addressLine2: string
-  landmark: string
-  contact: string
-  country: string | null
-  state: string
-  zipCode: number | null
-}
+import { BillingAddress } from '@/types/BillingAddress'
+import { UserDetail } from '@/types/UserProperties'
+
 interface Props {
-  billingAddress?: BillingAddress
   isDialogVisible: boolean
 }
+
 interface Emit {
   (e: 'update:isDialogVisible', value: boolean): void
   (e: 'submit', value: BillingAddress): void
 }
 
-const props = withDefaults(defineProps<Props>(), {
-  billingAddress: () => ({
-    firstName: '',
-    lastName: '',
-    selectedCountry: null,
-    addressLine1: '',
-    addressLine2: '',
-    landmark: '',
-    contact: '',
-    country: null,
-    state: '',
-    zipCode: null,
-  }),
-})
-
+const props = defineProps<Props>()
 const emit = defineEmits<Emit>()
 
-const billingAddress = ref<BillingAddress>(structuredClone(toRaw(props.billingAddress)))
+const userData = inject('userData') as Ref<UserDetail | undefined>
+
+const billingAddress = ref<Partial<BillingAddress>>({
+  regSociale: '',
+  piva: '',
+  address: '',
+  city: '',
+  prov: '',
+  stato: '',
+  cap: '',
+  ...userData.value?.billing_address
+})
 
 const resetForm = () => {
   emit('update:isDialogVisible', false)
-  billingAddress.value = structuredClone(toRaw(props.billingAddress))
+  billingAddress.value = {
+    regSociale: '',
+    piva: '',
+    address: '',
+    city: '',
+    prov: '',
+    stato: '',
+    cap: '',
+    ...userData.value?.billing_address
+  }
 }
 
 const onFormSubmit = () => {
   emit('update:isDialogVisible', false)
-  emit('submit', billingAddress.value)
+  emit('submit', billingAddress.value as BillingAddress)
 }
-
-const selectedAddress = ref('Home')
-
-const addressTypes = [
-  {
-    title: 'Home',
-    desc: 'Delivery Time (7am - 9pm)',
-    value: 'Home',
-    icon: 'ri-home-smile-2-line',
-  },
-  {
-    title: 'Office',
-    desc: 'Delivery Time (10am - 6pm)',
-    value: 'Office',
-    icon: 'ri-building-line',
-  },
-]
 </script>
 
 <template>
@@ -73,10 +53,7 @@ const addressTypes = [
     :model-value="props.isDialogVisible"
     @update:model-value="val => $emit('update:isDialogVisible', val)"
   >
-    <VCard
-      v-if="props.billingAddress"
-      class="pa-sm-11 pa-3"
-    >
+    <VCard class="pa-sm-11 pa-3">
       <VCardText class="pt-5">
         <!-- 👉 dialog close btn -->
         <DialogCloseBtn
@@ -88,132 +65,97 @@ const addressTypes = [
         <!-- 👉 Title -->
         <div class="text-center mb-6">
           <h4 class="text-h4 mb-2">
-            {{ props.billingAddress.firstName ? 'Edit' : 'Add New' }} Address
+            {{ userData?.billing_address ? 'Modifica' : 'Aggiungi' }} Indirizzo
           </h4>
 
           <p class="text-body-1">
-            Add Address for future billing
+            Indirizzo di fatturazione per l'utente {{ userData?.nome }} {{ userData?.cognome }}
           </p>
         </div>
 
-        <CustomRadios
-          v-model:selected-radio="selectedAddress"
-          :radio-content="addressTypes"
-          :grid-column="{ sm: '6', cols: '12' }"
-          class="mb-5"
-        >
-          <template #default="items">
-            <div class="d-flex flex-column">
-              <div class="d-flex mb-2 align-center gap-x-1">
-                <VIcon
-                  :icon="items.item.icon"
-                  size="20"
-                />
-                <div class="text-body-1 font-weight-medium text-high-emphasis">
-                  {{ items.item.title }}
-                </div>
-              </div>
-              <p class="text-body-2 mb-0">
-                {{ items.item.desc }}
-              </p>
-            </div>
-          </template>
-        </CustomRadios>
         <!-- 👉 Form -->
         <VForm @submit.prevent="onFormSubmit">
           <VRow>
-            <!-- 👉 First Name -->
+            <!-- 👉 Ragione Sociale -->
             <VCol
               cols="12"
               md="6"
             >
               <VTextField
-                v-model="billingAddress.firstName"
-                label="First Name"
-                placeholder="John"
+                v-model="billingAddress.regSociale"
+                label="Ragione Sociale"
+                placeholder="Azienda SRL"
               />
             </VCol>
 
-            <!-- 👉 Last Name -->
+            <!-- 👉 P.IVA -->
             <VCol
               cols="12"
               md="6"
             >
               <VTextField
-                v-model="billingAddress.lastName"
-                label="Last Name"
-                placeholder="Doe"
+                v-model="billingAddress.piva"
+                label="Partita Link / C.F."
+                placeholder="IT12345678901"
               />
             </VCol>
 
-            <!-- 👉 Select country -->
-
-            <VCol cols="12">
-              <VSelect
-                v-model="billingAddress.selectedCountry"
-                label="Select Country"
-                placeholder="Select Country"
-                :items="['USA', 'Canada', 'NZ', 'Aus']"
-              />
-            </VCol>
-
-            <!-- 👉 Address Line 1 -->
-
+            <!-- 👉 Indirizzo -->
             <VCol cols="12">
               <VTextField
-                v-model="billingAddress.addressLine1"
-                label="Address Line 1"
-                placeholder="1, New Street"
+                v-model="billingAddress.address"
+                label="Indirizzo"
+                placeholder="Via Roma, 1"
               />
             </VCol>
 
-            <!-- 👉 Address Line 2 -->
-
-            <VCol cols="12">
-              <VTextField
-                v-model="billingAddress.addressLine2"
-                label="Address Line 2"
-                placeholder="Near hospital"
+            <!-- 👉 Città -->
+            <VCol
+              cols="12"
+              md="6"
+            >
+               <VTextField
+                v-model="billingAddress.city"
+                label="Città"
+                placeholder="Milano"
               />
             </VCol>
 
-            <!-- 👉 Landmark -->
-
-            <VCol cols="12">
-              <VTextField
-                v-model="billingAddress.landmark"
-                label="Landmark & City"
-                placeholder="Near hospital, New York"
-              />
-            </VCol>
-
-            <!-- 👉 State -->
+            <!-- 👉 Provincia -->
             <VCol
               cols="12"
               md="6"
             >
               <VTextField
-                v-model="billingAddress.state"
-                label="State/Province"
-                placeholder="New York"
+                v-model="billingAddress.prov"
+                label="Provincia"
+                placeholder="MI"
               />
             </VCol>
 
-            <!-- 👉 Zip Code -->
+            <!-- 👉 Stato -->
             <VCol
               cols="12"
               md="6"
             >
               <VTextField
-                v-model="billingAddress.zipCode"
-                label="Zip Code"
-                placeholder="123123"
+                v-model="billingAddress.stato"
+                label="Stato"
+                placeholder="Italia"
+              />
+            </VCol>
+
+            <!-- 👉 CAP -->
+            <VCol
+              cols="12"
+              md="6"
+            >
+              <VTextField
+                v-model="billingAddress.cap"
+                label="CAP"
+                placeholder="20100"
                 type="number"
               />
-            </VCol>
-
-            <VCol cols="12">
-              <VSwitch label="Make this default shipping address" />
             </VCol>
 
             <!-- 👉 Submit and Cancel button -->
@@ -225,7 +167,7 @@ const addressTypes = [
                 type="submit"
                 class="me-3"
               >
-                submit
+                Salva
               </VBtn>
 
               <VBtn
@@ -233,7 +175,7 @@ const addressTypes = [
                 color="secondary"
                 @click="resetForm"
               >
-                Cancel
+                Annulla
               </VBtn>
             </VCol>
           </VRow>

@@ -2,12 +2,16 @@ from fastapi import FastAPI, APIRouter
 from .persistence.model import UserModel as user_models
 from .persistence.model import PaymentModel as payment_models
 from .persistence.model import ProjectModel as project_models
+from .persistence.model import BillingAddressModel as billing_models
+from .persistence.model import UserToProjectModel as user_project_models
 from .persistence.database import engine
 from .api import auth, users, payments, test_service
 
 from fastapi.middleware.cors import CORSMiddleware
 
 user_models.Base.metadata.create_all(bind=engine)
+billing_models.Base.metadata.create_all(bind=engine)
+user_project_models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
 

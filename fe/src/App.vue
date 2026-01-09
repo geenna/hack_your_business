@@ -6,6 +6,8 @@ import { initConfigStore, useConfigStore } from '@core/stores/config'
 import { hexToRgb } from '@core/utils/colorConverter'
 import { isLoading } from '@/shared/state/loading'
 import LoadingOverlay from '@/components/LoadingOverlay.vue'
+import AlertModal from '@core/components/AlertModal.vue'
+import ConfirmModal from '@core/components/ConfirmModal.vue'
 
 const { global } = useTheme()
 
@@ -18,7 +20,10 @@ const configStore = useConfigStore()
 
 <template>
   <VLocaleProvider :rtl="configStore.isAppRTL">
-     <LoadingOverlay :loading="isLoading" />
+    <LoadingOverlay :loading="isLoading" />
+    <AlertModal />
+    <ConfirmModal />
+    
     <!-- ℹ️ This is required to set the background color of active nav link based on currently active global theme's primary -->
     <VApp :style="`--v-global-theme-primary: ${hexToRgb(global.current.value.colors.primary)}`">
       <RouterView />

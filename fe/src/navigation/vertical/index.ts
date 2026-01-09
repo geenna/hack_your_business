@@ -23,5 +23,11 @@ export default [
     title: 'Pagamenti',
 
     target: '_blank',
+  },
+  {
+    title: 'Agenda',
+
+    icon: { icon: 'ri-file-text-line' },
+    target: '_blank',
   }
 ]

@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import UserService from '@/services/UserService'
 import type { UserProperties } from '@/types/UserProperties'
+import CreateUserDialog from './CreateUserDialog.vue'
 
 const emit = defineEmits(['onDetailUser'])
 // 👉 Store
@@ -14,7 +14,6 @@ const itemsPerPage = ref(10)
 const page = ref(1)
 const sortBy = ref()
 const orderBy = ref()
-const selectedRows = ref([])
 
 // Update data table options
 const updateOptions = (options: any) => {
@@ -28,6 +27,7 @@ const headers = [
   { title: 'Nome', key: 'nome' },
   { title: 'Email', key: 'email' },
   { title: 'Ruolo', key: 'userType' },
+  { title: 'Stato', key: 'user_status' },
   { title: 'Actions', key: 'actions', sortable: false },
 ]
 
@@ -59,17 +59,16 @@ const resolveUserRoleVariant = (role: string) => {
   return { color: 'success', icon: 'ri-user-line' }
 }
 
-const resolveUserStatusVariant = (stat: string) => {
-  const statLowerCase = stat.toLowerCase()
-  if (statLowerCase === 'pending')
-    return 'warning'
-  if (statLowerCase === 'active')
-    return 'success'
-  if (statLowerCase === 'inactive')
-    return 'secondary'
+const resolveUserStatusVariant = (role: string) => {
+  const roleLowerCase = role.toLowerCase()
+  
+  if (roleLowerCase === 'disattivo')
+    return 'error'
 
   return 'primary'
+
 }
+
 
 const isAddNewUserDrawerVisible = ref(false)
 
@@ -83,17 +82,11 @@ const deleteUser = async (id: number) => {
  
 }
 
-onMounted(() => {
-    getUser()
-})
-
-const getUser = async () => {
-    const response = await UserService.getAllUsers()
-    users.value = response.data
-}
-const users = ref<UserProperties[]>([])
+const users = inject<Ref<UserProperties[]>>('users')
 
 const filteredUsers = computed(() => {
+  if (!users || !users.value) return []
+  
   if (!selectedRole.value)
     return users.value
 
@@ -107,9 +100,17 @@ const widgetData = ref([
   { title: 'Pending Users', value: '237', change: 42, desc: 'Last Week Analytics', icon: 'ri-user-search-line', iconColor: 'warning' },
 
 ])
+
+const isUserCreateDialogVisible = ref(false)
+
 </script>
 
 <template>
+    <!-- 👉 create user dialog -->
+  <CreateUserDialog
+    v-model:is-dialog-visible.capitialize="isUserCreateDialogVisible"
+    :user-data="undefined"
+  />
   <section>
     <!-- 👉 Widgets -->
     <div class="d-flex mb-6">
@@ -210,8 +211,8 @@ const widgetData = ref([
             class="me-4"
           />
           <!-- 👉 Add user button -->
-          <VBtn @click="isAddNewUserDrawerVisible = true">
-            Add New User
+          <VBtn @click="isUserCreateDialogVisible = true">
+            Aggiungi Utente
           </VBtn>
         </div>
       </VCardText>
@@ -236,6 +237,17 @@ const widgetData = ref([
               :color="resolveUserRoleVariant(item.userType).color"
             />
             <span class="text-capitalize text-high-emphasis">{{ item.userType }}</span>
+          </div>
+        </template>
+
+        <template #item.user_status="{ item }">
+          <div class="d-flex gap-4">
+            <VChip
+              :color="resolveUserStatusVariant(item.user_status)"
+              size="small"
+            >
+              {{ item.user_status }}
+            </VChip>
           </div>
         </template>
 

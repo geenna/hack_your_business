@@ -1,11 +1,54 @@
 <script setup lang="ts">
 
+import type { UserDetail } from '@/types/UserProperties'
+
+import { useConfirm } from '@/shared/state/confirm'
+import { useAlert } from '@/shared/state/alert'
+import UserService from '@/services/UserService'
+
+const { show: showConfirm } = useConfirm()
+const { show: showAlert } = useAlert()
+
 const props = defineProps({
   userData: {
-    type: Object,
+    type: Object as PropType<UserDetail>,
     required: true,
   },
 })
+
+const onSuspend = async () => {
+    const confirmed = await showConfirm(
+        'Sospensione Utente',
+        `Sei sicuro di voler sospendere l'utente ${props.userData.nome} ${props.userData.cognome}?`
+    )
+
+    if (confirmed) {
+        try {
+            await UserService.suspendUser(props.userData.id)
+            props.userData.user_status = 'DISATTIVO'
+            showAlert('Successo', 'Utente sospeso con successo', 'success')
+        } catch (error) {
+            // Error is handled by global interceptor, but we can catch specific logic here if needed
+        }
+    }
+}
+
+const onActivate = async () => {
+    const confirmed = await showConfirm(
+        'Attivazione Utente',
+        `Sei sicuro di voler attivare l'utente ${props.userData.nome} ${props.userData.cognome}?`
+    )
+
+    if (confirmed) {
+        try {
+            await UserService.activateUser(props.userData.id)
+            props.userData.user_status = 'ATTIVO'
+            showAlert('Successo', 'Utente attivato con successo', 'success')
+        } catch (error) {
+            // Error is handled by global interceptor, but we can catch specific logic here if needed
+        }
+    }
+}
 
 const standardPlan = {
   plan: 'Standard',
@@ -23,45 +66,26 @@ const isUpgradePlanDialogVisible = ref(false)
 const resolveUserStatusVariant = stat => {
   if (stat === 'pending')
     return 'warning'
-  if (stat === 'active')
+  if (stat === 'ATTIVO')
     return 'success'
-  if (stat === 'inactive')
+  if (stat === 'DISATTIVO')
     return 'secondary'
   
   return 'primary'
 }
 
+
+
 const resolveUserRoleVariant = role => {
-  if (role === 'subscriber')
-    return {
-      color: 'primary',
-      icon: 'ri-user-line',
-    }
-  if (role === 'author')
-    return {
-      color: 'warning',
-      icon: 'ri-settings-2-line',
-    }
-  if (role === 'maintainer')
-    return {
-      color: 'success',
-      icon: 'ri-database-2-line',
-    }
-  if (role === 'editor')
-    return {
-      color: 'info',
-      icon: 'ri-pencil-line',
-    }
+
+  if (role === 'cliente')
+    return { color: 'success', icon: 'ri-user-line' }
+  if (role === 'collaboratore')
+    return { color: 'info', icon: 'ri-pie-chart-line' }
   if (role === 'admin')
-    return {
-      color: 'error',
-      icon: 'ri-server-line',
-    }
-  
-  return {
-    color: 'primary',
-    icon: 'ri-user-line',
-  }
+    return { color: 'primary', icon: 'ri-vip-crown-line' }
+
+  return { color: 'success', icon: 'ri-user-line' }
 }
 </script>
 
@@ -86,72 +110,25 @@ const resolveUserRoleVariant = role => {
               v-else
               class="text-5xl font-weight-medium"
             >
-              {{ avatarText(props.userData.fullName) }}
+              {{ avatarText(props.userData.nome) }}
             </span>
           </VAvatar>
 
           <!-- 👉 User fullName -->
           <h5 class="text-h5 mt-4">
-            {{ props.userData.fullName }}
+            {{ props.userData.nome }} {{ props.userData.cognome }}
           </h5>
 
-          <!-- 👉 Role chip -->
+            <!-- 👉 Role chip -->
           <VChip
-            :color="resolveUserRoleVariant(props.userData.role).color"
+            :color="resolveUserRoleVariant(props.userData.userType).color"
             size="small"
             class="text-capitalize mt-4"
           >
-            {{ props.userData.role }}
+            {{ props.userData.userType }}
           </VChip>
         </VCardText>
 
-        <VCardText class="d-flex justify-center flex-wrap gap-6 pb-6">
-          <!-- 👉 Done task -->
-          <div class="d-flex align-center me-8">
-            <VAvatar
-              :size="40"
-              rounded
-              color="primary"
-              variant="tonal"
-              class="me-4"
-            >
-              <VIcon
-                size="24"
-                icon="ri-check-line"
-              />
-            </VAvatar>
-
-            <div>
-              <h6 class="text-h5">
-                {{ kFormatter(props.userData.taskDone) }}
-              </h6>
-              <span>Task Done</span>
-            </div>
-          </div>
-
-          <!-- 👉 Done Project -->
-          <div class="d-flex align-center me-4">
-            <VAvatar
-              :size="44"
-              rounded
-              color="primary"
-              variant="tonal"
-              class="me-3"
-            >
-              <VIcon
-                size="24"
-                icon="ri-briefcase-4-line"
-              />
-            </VAvatar>
-
-            <div>
-              <h6 class="text-h6">
-                {{ kFormatter(props.userData.projectDone) }}
-              </h6>
-              <span>Project Done</span>
-            </div>
-          </div>
-        </VCardText>
 
         <!-- 👉 Details -->
         <VCardText class="pb-6">
@@ -163,19 +140,11 @@ const resolveUserRoleVariant = role => {
 
           <!-- 👉 User Details list -->
           <VList class="card-list">
-            <VListItem>
-              <VListItemTitle class="text-sm">
-                <span class="font-weight-medium">Username:</span>
-                <span class="text-body-1">
-                  @{{ props.userData.username }}
-                </span>
-              </VListItemTitle>
-            </VListItem>
-
+        
             <VListItem>
               <VListItemTitle class="text-sm">
                 <span class="font-weight-medium">
-                  Billing Email:
+                    Email:
                 </span>
                 <span class="text-body-1">{{ props.userData.email }}</span>
               </VListItemTitle>
@@ -184,32 +153,24 @@ const resolveUserRoleVariant = role => {
             <VListItem>
               <VListItemTitle class="text-sm">
                 <span class="font-weight-medium">
-                  Status:
+                  Stato:
                 </span>
                 <VChip
                   size="small"
-                  :color="resolveUserStatusVariant(props.userData.status)"
+                  :color="resolveUserStatusVariant(props.userData.user_status)"
                   class="text-capitalize"
                 >
-                  {{ props.userData.status }}
+                  {{ props.userData.user_status }}
                 </VChip>
               </VListItemTitle>
             </VListItem>
-
-            <VListItem>
-              <VListItemTitle class="text-sm">
-                <span class="font-weight-medium">Role: </span>
-                <span class="text-capitalize text-body-1">{{ props.userData.role }}</span>
-              </VListItemTitle>
-            </VListItem>
-
             <VListItem>
               <VListItemTitle class="text-sm">
                 <span class="font-weight-medium">
-                  Tax ID:
+                  Codice Fiscale:
                 </span>
                 <span class="text-body-1">
-                  {{ props.userData.taxId }}
+                  {{ props.userData.cf }}
                 </span>
               </VListItemTitle>
             </VListItem>
@@ -217,27 +178,55 @@ const resolveUserRoleVariant = role => {
             <VListItem>
               <VListItemTitle class="text-sm">
                 <span class="font-weight-medium">
-                  Contact:
+                  Indirizzo:
                 </span>
-                <span class="text-body-1">{{ props.userData.contact }}</span>
+                <span class="text-body-1">
+                  {{ props.userData.indirizzoResidenza }}
+                </span>
               </VListItemTitle>
             </VListItem>
 
             <VListItem>
               <VListItemTitle class="text-sm">
                 <span class="font-weight-medium">
-                  Language:
+                  Città:
                 </span>
-                <span class="text-body-1">{{ props.userData.language }}</span>
+                <span class="text-body-1">
+                  {{ props.userData.citta }} ({{ props.userData.prov }}) - {{ props.userData.cap }}
+                </span>
+              </VListItemTitle>
+            </VListItem>
+
+            <VListItem v-if="props.userData.regioneSociale">
+              <VListItemTitle class="text-sm">
+                <span class="font-weight-medium">
+                  Ragione Sociale:
+                </span>
+                <span class="text-body-1">
+                  {{ props.userData.regioneSociale }}
+                </span>
+              </VListItemTitle>
+            </VListItem>
+
+            <VListItem v-if="props.userData.piva">
+              <VListItemTitle class="text-sm">
+                <span class="font-weight-medium">
+                  P.IVA:
+                </span>
+                <span class="text-body-1">
+                  {{ props.userData.piva }}
+                </span>
               </VListItemTitle>
             </VListItem>
 
             <VListItem>
               <VListItemTitle class="text-sm">
                 <span class="font-weight-medium">
-                  Country:
+                   Telefono:
                 </span>
-                <span class="text-body-1">{{ props.userData.country }}</span>
+                <span class="text-body-1">
+                  {{ props.userData.telefono }}
+                </span>
               </VListItemTitle>
             </VListItem>
           </VList>
@@ -250,113 +239,34 @@ const resolveUserRoleVariant = role => {
             class="me-4"
             @click="isUserInfoEditDialogVisible = true"
           >
-            Edit
+            Modifica
           </VBtn>
           <VBtn
+            v-if="props.userData.user_status === 'ATTIVO'"
             variant="outlined"
             color="error"
+            @click="onSuspend"
           >
-            Suspend
+            Sospendi
           </VBtn>
-        </VCardText>
-      </VCard>
-    </VCol>
-    <!-- !SECTION -->
-
-    <!-- SECTION Current Plan -->
-    <VCol cols="12">
-      <VCard
-        flat
-        class="current-plan"
-      >
-        <VCardText class="d-flex">
-          <!-- 👉 Standard Chip -->
-          <VChip
-            color="primary"
-            size="small"
-          >
-            Standard
-          </VChip>
-
-          <VSpacer />
-
-          <!-- 👉 Current Price  -->
-          <div class="d-flex align-center">
-            <sup class="text-primary text-lg font-weight-medium">$</sup>
-            <h1 class="text-h1 text-primary">
-              99
-            </h1>
-            <sub class="mt-3"><h6 class="text-h6 font-weight-regular">month</h6></sub>
-          </div>
-        </VCardText>
-
-        <VCardText>
-          <!-- 👉 Price Benefits -->
-          <VList class="card-list">
-            <VListItem
-              v-for="benefit in standardPlan.benefits"
-              :key="benefit"
-            >
-              <div class="d-flex align-center">
-                <VIcon
-                  size="10"
-                  color="medium-emphasis"
-                  class="me-2"
-                  icon="ri-circle-fill"
-                />
-                <div class="text-medium-emphasis">
-                  {{ benefit }}
-                </div>
-              </div>
-            </VListItem>
-          </VList>
-
-          <!-- 👉 Days -->
-          <div class="my-6">
-            <div class="d-flex mt-3 mb-2">
-              <h6 class="text-h6 font-weight-medium">
-                Days
-              </h6>
-              <VSpacer />
-              <h6 class="text-h6 font-weight-medium">
-                26 of 30 Days
-              </h6>
-            </div>
-
-            <!-- 👉 Progress -->
-            <VProgressLinear
-              rounded
-              :model-value="86"
-              height="8"
-              color="primary"
-            />
-
-            <p class="text-sm mt-1">
-              4 days remaining
-            </p>
-          </div>
-
-          <!-- 👉 Upgrade Plan -->
           <VBtn
-            block
-            @click="isUpgradePlanDialogVisible = true"
+            v-if="props.userData.user_status === 'DISATTIVO'"
+            variant="outlined"
+            color="success"
+            @click="onActivate"
           >
-            Upgrade Plan
+            Attiva
           </VBtn>
         </VCardText>
       </VCard>
     </VCol>
     <!-- !SECTION -->
+
+   
   </VRow>
 
-  <!-- 👉 Edit user info dialog -->
-  <UserInfoEditDialog
-    v-model:is-dialog-visible.capitialize="isUserInfoEditDialogVisible"
-    :user-data="props.userData"
-  />
 
-  <!-- 👉 Upgrade plan dialog -->
-  <UserUpgradePlanDialog v-model:is-dialog-visible="isUpgradePlanDialogVisible" />
+
 </template>
 
 <style lang="scss" scoped>

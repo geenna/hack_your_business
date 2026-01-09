@@ -16,20 +16,24 @@ import xamarin from '@images/icons/project-icons/xamarin.png'
 
 const projectTableHeaders = [
   {
-    title: 'PROJECT',
+    title: 'Progetto',
     key: 'name',
   },
   {
-    title: 'TOTAL TASK',
-    key: 'totalTask',
+    title: 'Data Inizio',
+    key: 'datInizio',
   },
   {
-    title: 'PROGRESS',
+    title: 'Data Fine',
+    key: 'datFine',
+  },
+  {
+    title: '% Completamento',
     key: 'progress',
   },
   {
-    title: 'HOURS',
-    key: 'hours',
+    title: 'Costo',
+    key: 'price',
   },
 ]
 
@@ -38,59 +42,67 @@ const { name } = useTheme()
 const projects = [
   {
     logo: react,
-    name: 'BGC eCommerce App',
-    project: 'React Project',
-    totalTask: '122/240',
+    name: 'Cliente A',
+    project: 'Sviluppo bando MIUR ',
+    datInizio: '20/11/2025',
+    datFine: '20/12/2026',
+    price:"1000 €",
     progress: 78,
-    hours: '18:42',
   },
   {
     logo: figma,
     name: 'Falcon Logo Design',
     project: 'Figma Project',
-    totalTask: '09/56',
     progress: 18,
-    hours: '20:42',
+    datInizio: '20/11/2025',
+    datFine: '20/12/2026',
+    price:"1000 €",
   },
   {
     logo: vue,
     name: 'Dashboard Design',
     project: 'Vuejs Project',
-    totalTask: '290/320',
     progress: 62,
-    hours: '120:87',
+    datInizio: '20/11/2025',
+    datFine: '20/12/2026',
+    price:"1000 €",
   },
   {
     logo: xamarin,
     name: 'Foodista mobile app',
     project: 'Xamarin Project',
-    totalTask: '290/320',
     progress: 8,
-    hours: '120:87',
+    datInizio: '20/11/2025',
+    datFine: '20/12/2026',
+    price:"1000 €",
   },
   {
     logo: python,
     name: 'Dojo Email App',
     project: 'Python Project',
-    totalTask: '120/186',
     progress: 49,
-    hours: '230:10',
+    datInizio: '20/11/2025',
+    datFine: '20/12/2026',
+    price:"1000 €",
   },
   {
     logo: sketch,
     name: 'Blockchain Website',
     project: 'Sketch Project',
-    totalTask: '99/109',
     progress: 92,
-    hours: '342:41',
+    datInizio: '20/11/2025',
+    datFine: '20/12/2026',
+    price:"1000 €",
   },
   {
     logo: html5,
     name: 'Hoffman Website',
     project: 'HTML Project',
-    totalTask: '98/110',
+    datInizio: '20/11/2025',
+    datFine: '20/12/2026',
+    price:"1000 €",   
     progress: 88,
-    hours: '12:45',
+    
   },
 ]
 
@@ -181,7 +193,7 @@ const search = ref('')
 
     <VCol cols="12">
       <!-- 👉 Activity timeline -->
-      <VCard title="User Activity Timeline">
+      <VCard title="Attività utente">
         <VCardText>
           <VTimeline
             density="compact"

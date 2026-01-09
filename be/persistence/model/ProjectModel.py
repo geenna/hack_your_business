@@ -4,13 +4,11 @@ from datetime import datetime
 from ..database import Base
 
 class Projects(Base):
-    __tablename__ = "Projects"
+    __tablename__ = "projects"
 
     id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
-    userId = Column(String, ForeignKey("users.id", ondelete="RESTRICT"))
     descrizioneProgetto = Column(String)
     datInizio = Column(DateTime, default=datetime.utcnow)
     datFine = Column(DateTime)
     stato = Column(String)
     avanzamento = Column(Float)
-    allowedUserId = Column(JSON) # List[str]

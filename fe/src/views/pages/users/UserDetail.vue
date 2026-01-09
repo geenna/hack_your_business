@@ -8,9 +8,13 @@ import UserTabBillingsPlans from '@/views/pages/users/components/UserTabBillings
 import UserTabNotifications from '@/views/pages/users/components/UserTabNotifications.vue'
 import UserTabConnections from '@/views/pages/users/components/UserTabConnections.vue'
 
+import type { UserDetail } from '@/types/UserProperties'
+
 const selectedUserID = inject('selectedUserID') as Ref<string>
-const userData = ref()
+const userData = ref<UserDetail>()
 const userTab = ref(null)
+
+const emit = defineEmits(['onBack'])
 
 const tabs = [
   {
@@ -23,15 +27,15 @@ const tabs = [
   },
   {
     icon: 'ri-bookmark-line',
-    title: 'Billing & Plan',
+    title: 'Progetti',
   },
   {
     icon: 'ri-notification-4-line',
-    title: 'Notifications',
+    title: 'CoWork',
   },
   {
     icon: 'ri-link-m',
-    title: 'Connections',
+    title: 'Pagamenti',
   },
 ]
 
@@ -45,7 +49,8 @@ watch(selectedUserID, async (newId) => {
 </script>
 
 <template>
-  <VRow v-if="userData">
+  <VBtn variant="text" @click="emit('onBack', false)">Indietro</VBtn>
+  <VRow v-if="userData" class="mt-6">
     <VCol
       cols="12"
       md="5"

@@ -13,8 +13,19 @@ class UserBase(BaseModel):
     email: EmailStr
     userType: str
     roles: List[Role] = []
-    nome: str
-    cognome: str
+    nome: Optional[str] = None
+    cognome: Optional[str] = None
+    cf: Optional[str] = None
+    indirizzoResidenza: Optional[str] = None
+    citta: Optional[str] = None
+    cap: Optional[str] = None
+    prov: Optional[str] = None
+    regioneSociale: Optional[str] = None
+    piva: Optional[str] = None
+    telefono: Optional[str] = None
+    stato: Optional[str] = None # Country
+    user_status: Optional[str] = "ATTIVO" # Account Status
+    avatar: Optional[str] = None
 
 class UserCreate(UserBase):
     password: str
@@ -37,3 +48,7 @@ class TokenData(BaseModel):
 class UserLogin(BaseModel):
     username: str
     password: str
+
+
+class UserDetailResponse(UserBase):
+    id: str

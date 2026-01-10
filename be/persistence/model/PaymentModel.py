@@ -12,3 +12,4 @@ class Payment(Base):
     value = Column(Float)
     date = Column(DateTime, default=datetime.utcnow)
     status = Column(String)
+    tipoPagamento = Column(String)

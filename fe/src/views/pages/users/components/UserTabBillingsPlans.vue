@@ -3,6 +3,7 @@ import { UserDetail } from '@/types/UserProperties'
 import { BillingAddress } from '@/types/BillingAddress'
 import { useAlert } from '@/shared/state/alert'
 import PaymentService from '@/services/PaymentService'
+import InvoiceListTable from '@/views/pages/payments/components/InvoiceListTable.vue'
 
 const { show: showAlert } = useAlert()
 
@@ -155,6 +156,8 @@ const onAddressSubmit = async (addressData: BillingAddress) => {
       </VCard>
     </VCol>
   </VRow>
+
+  <InvoiceListTable />
 
   <!-- 👉 Edit Address dialog -->
 

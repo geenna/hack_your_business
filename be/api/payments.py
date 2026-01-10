@@ -10,6 +10,7 @@ from ..persistence.schemas import BillingAddressSchema
 from ..service import billing_service
 from ..persistence.model.BillingAddressModel import BillingAddressModel
 from datetime import datetime
+import random
 
 router = APIRouter(
     prefix="/payments",
@@ -17,13 +18,18 @@ router = APIRouter(
 )
 allow_admin_only = auth.RoleChecker(["all"])
 @router.post("/", response_model=schemas.PaymentResponse)
-def create_payment(payment: schemas.PaymentCreate, user: user_models.User = Depends(auth.get_current_user), db: Session = Depends(auth.get_db)):
+def create_payment(payment: schemas.PaymentCreate, 
+                user: user_models.User = Depends(allow_admin_only), 
+                db: Session = Depends(auth.get_db)):
+    
+    
     db_payment = payment_models.Payment(
-        userId=user.id,
-        paymentId=payment.paymentId,
+        userId=payment.userId,
+        paymentId = f"PAY-{random.randint(100, 99999999)}",
         value=payment.value,
-        status=payment.status,
-        date=datetime.utcnow()
+        status=payment.status.upper(),
+        date=payment.date,
+        tipoPagamento=payment.tipoPagamento.upper()
     )
     db.add(db_payment)
     db.commit()
@@ -62,3 +68,34 @@ def update_billing_address(
     )
     
     return updated_address
+
+@router.get("/get-user-payments", response_model=List[schemas.PaymentResponse])
+def get_user_payments(
+    userId: str, 
+    fromDate: datetime, 
+    toDate: datetime,
+    db: Session = Depends(auth.get_db),
+    user: user_models.User = Depends(allow_admin_only)
+):
+    stmt = select(payment_models.Payment).where(
+        payment_models.Payment.userId == userId,
+        payment_models.Payment.date >= fromDate,
+        payment_models.Payment.date <= toDate
+    )
+    payments = db.execute(stmt).scalars().all()
+    return payments
+
+@router.delete("/{id}", status_code=204)
+def delete_payment(
+    id: str,
+    db: Session = Depends(auth.get_db),
+    user: user_models.User = Depends(allow_admin_only)
+):
+    payment = db.query(payment_models.Payment).filter(payment_models.Payment.id == id).first()
+    if not payment:
+         raise HTTPException(status_code=404, detail="Payment not found")
+    
+    db.delete(payment)
+    db.commit()
+    return None
+

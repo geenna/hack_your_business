@@ -6,7 +6,7 @@ import UserTabOverview from '@/views/pages/users/components/UserTabOverview.vue'
 import UserTabSecurity from '@/views/pages/users/components/UserTabSecurity.vue'
 import UserTabBillingsPlans from '@/views/pages/users/components/UserTabBillingsPlans.vue'
 import UserTabNotifications from '@/views/pages/users/components/UserTabNotifications.vue'
-import UserTabConnections from '@/views/pages/users/components/UserTabConnections.vue'
+import UserTabProjects from '@/views/pages/users/components/UserTabProjects.vue'
 
 import type { UserDetail } from '@/types/UserProperties'
 
@@ -100,7 +100,7 @@ watch(selectedUserID, async (newId) => {
         </VWindowItem>
 
         <VWindowItem>
-           <UserTabConnections />
+           <UserTabProjects />
         </VWindowItem>
 
         <VWindowItem>

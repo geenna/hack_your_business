@@ -21,14 +21,45 @@ router = APIRouter(
 )
 
 
-@router.get("/project-by-user/{user_id}", response_model=List[project_schemas.ProjectResponse])
+@router.get("/all-projects/{user_id}", response_model=List[project_schemas.ProjectWithRelation])
 def read_users(user_id: str, db: Session = Depends(auth.get_db), user: models.User = Depends(allow_admin_only)):
 
-    projects = project_service.get_projects_by_user(user_id, db)
-    return projects
+    results = project_service.get_projects_by_user(user_id, db)
+    projects_data = []
+    for project, relation in results:
+        project_dict = {
+            "id": project.id,
+            "projectName": project.projectName,
+            "descrizioneProgetto": project.descrizioneProgetto,
+            "datInizio": project.datInizio,
+            "datFine": project.datFine,
+            "stato": project.stato,
+            "avanzamento": project.avanzamento,
+            "role": relation.role,
+            "active": relation.active,
+            "datCreation": relation.datCreation,
+            "costo": project.costo
+        }
+        projects_data.append(project_dict)
+    return projects_data
     
-@router.get("/user-projects/", response_model=List[project_schemas.ProjectResponse])
+@router.get("/user-projects/", response_model=List[project_schemas.ProjectWithRelation])
 def read_users(db: Session = Depends(auth.get_db), user: models.User = Depends(auth.get_current_user)):
 
-    projects = project_service.get_projects_by_user(user.id, db)
-    return projects
+    results = project_service.get_projects_by_user(user.id, db)
+    projects_data = []
+    for project, relation in results:
+        project_dict = {
+            "id": project.id,
+            "projectName": project.projectName,
+            "descrizioneProgetto": project.descrizioneProgetto,
+            "datInizio": project.datInizio,
+            "datFine": project.datFine,
+            "stato": project.stato,
+            "avanzamento": project.avanzamento,
+            "role": relation.role,
+            "active": relation.active,
+            "datCreation": relation.datCreation
+        }
+        projects_data.append(project_dict)
+    return projects_data

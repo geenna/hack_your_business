@@ -1,34 +1,20 @@
 <script setup lang="ts">
 import { useTheme } from 'vuetify'
-import pdf from '@images/icons/project-icons/pdf.png'
 import avatar2 from '@images/avatars/avatar-2.png'
-import avatar3 from '@images/avatars/avatar-3.png'
-import avatar4 from '@images/avatars/avatar-4.png'
-import avatar5 from '@images/avatars/avatar-5.png'
-import figma from '@images/icons/project-icons/figma.png'
-import html5 from '@images/icons/project-icons/html5.png'
-import python from '@images/icons/project-icons/python.png'
-import react from '@images/icons/project-icons/react.png'
-import sketch from '@images/icons/project-icons/sketch.png'
-import vue from '@images/icons/project-icons/vue.png'
-import xamarin from '@images/icons/project-icons/xamarin.png'
 import ProjectService from '@/services/ProjectService'
 import { UserDetail } from '@/types/UserProperties'
-
-import PaymentService from '@/services/PaymentService'
+import { ProjectWithUserRole } from '@/types/ProjectWithUserRole'
 const { name } = useTheme()
 
 const userData = inject('userData') as Ref<UserDetail | undefined>
 const isLoading = ref(false)
-//const projects = ref<Project[]>([])
+const projects = ref<ProjectWithUserRole[]>([])
 
 const getProjectsByUser = () => {
-
-  
     isLoading.value = true
-    ProjectService.getProjectsByUser(userData.value!.id)
+    ProjectService.getAllProjectsByUser(userData.value!.id)
         .then(response => {
-            //projects.value = response.data
+            projects.value = response.data
         })
         .catch(error => {
             console.error(error)
@@ -38,40 +24,43 @@ const getProjectsByUser = () => {
         })
 }
 
-onMounted(() => {
-
+watch(userData, () => {
     if (userData.value?.id ) {
         getProjectsByUser()
     }
-   
-})
+}, { immediate: true })
 
 const projectTableHeaders = [
   {
     title: 'Progetto',
-    key: 'name',
+    key: 'projectName',
+  },
+    {
+    title: 'Ruolo',
+    key: 'role',
   },
   {
     title: 'Data Inizio',
     key: 'datInizio',
   },
+
   {
     title: 'Data Fine',
     key: 'datFine',
   },
   {
     title: '% Completamento',
-    key: 'progress',
+    key: 'avanzamento',
   },
   {
-    title: 'Costo',
-    key: 'price',
+    title: 'Costo (€)',
+    key: 'costo',
   },
 ]
 
+const search = ref('')
 
-
-const resolveUserProgressVariant = progress => {
+const resolveUserProgressVariant = (progress:number) => {
   if (progress <= 25)
     return 'error'
   if (progress > 25 && progress <= 50)
@@ -108,41 +97,36 @@ const resolveUserProgressVariant = progress => {
           class="text-no-wrap rounded-0"
         >
           <!-- projects -->
-          <template #item.name="{ item }">
+          <template #item.projectName="{ item }">
             <div class="d-flex align-center">
               <VAvatar
                 :size="34"
                 class="me-3"
-                :image="item.logo"
+                :image="avatar2"
               />
               <div>
                 <h6 class="text-h6 mb-0">
-                  {{ item.name }}
+                  {{ item.projectName }}
                 </h6>
                 <p class="text-sm text-medium-emphasis mb-0">
-                  {{ item.project }}
+                  {{ item.descrizioneProgetto }}
                 </p>
               </div>
             </div>
           </template>
-
-          <!-- total task -->
-          <template #item.totalTask="{ item }">
-            <div class="text-high-emphasis">
-              {{ item.totalTask }}
-            </div>
-          </template>
-
+          <template #item.datInizio="{ item }"> {{ new Date(item.datInizio).toLocaleDateString() }} </template>
+          <template #item.datFine="{ item }"> {{ new Date(item.datFine).toLocaleDateString() }} </template>
+          <template #item.costo="{ item }"> {{ item.costo }} € </template>
           <!-- Progress -->
-          <template #item.progress="{ item }">
+          <template #item.avanzamento="{ item }">
             <div class="text-high-emphasis">
-              {{ item.progress }}%
+              {{ item.avanzamento }}%
             </div>
             <VProgressLinear
               :height="6"
-              :model-value="item.progress"
+              :model-value="item.avanzamento"
               rounded
-              :color="resolveUserProgressVariant(item.progress)"
+              :color="resolveUserProgressVariant(item.avanzamento)"
             />
           </template>
 

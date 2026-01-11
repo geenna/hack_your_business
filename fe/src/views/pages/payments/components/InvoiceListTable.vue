@@ -76,6 +76,7 @@ const isLoading = ref(false)
 const isAddPaymentDialogVisible = ref(false)
 const userData = inject('userData') as Ref<UserDetail | undefined>
 
+
 const formatDate = (date: Date) => date.toISOString().split('T')[0]
 
 const today = new Date()
@@ -149,10 +150,10 @@ const fetchInvoices = async () => {
 }
 
 watch(userData, () => {
-    if (userData.value?.id && invoices.value.length === 0) {
+    if (userData.value?.id) {
         fetchInvoices()
     }
-})
+}, { immediate: true })
 
 watch(dateRange, () => {
     if (dateRange.value.includes(' to ')) {

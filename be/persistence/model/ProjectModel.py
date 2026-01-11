@@ -13,3 +13,4 @@ class Projects(Base):
     datFine = Column(DateTime)
     stato = Column(String)
     avanzamento = Column(Float)
+    costo = Column(Float)

@@ -85,8 +85,6 @@ ninetyDaysAgo.setDate(today.getDate() - 90)
 const dateRange = ref(`${formatDate(ninetyDaysAgo)} to ${formatDate(today)}`)
 
 const onPaymentSubmit = async (paymentData: any) => {
-
-    debugger;
   try {
     paymentData.userId = userData.value?.id
     await PaymentService.createPayment({

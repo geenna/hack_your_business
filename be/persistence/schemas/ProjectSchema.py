@@ -3,19 +3,18 @@ from datetime import datetime
 from typing import Optional, List
 
 class ProjectBase(BaseModel):
-    descrizioneProgetto: str
+    projectName: Optional[str] = None
+    descrizioneProgetto: Optional[str] = None
     datInizio: Optional[datetime] = None
     datFine: Optional[datetime] = None
-    stato: str
-    avanzamento: float
-    allowedUserId: List[str] = []
+    stato: Optional[str] = None
+    avanzamento: Optional[float] = None
 
 class ProjectCreate(ProjectBase):
     pass
 
 class ProjectResponse(ProjectBase):
     id: str
-    userId: str
 
     class Config:
         from_attributes = True

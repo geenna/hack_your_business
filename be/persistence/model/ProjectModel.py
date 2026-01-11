@@ -7,6 +7,7 @@ class Projects(Base):
     __tablename__ = "projects"
 
     id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
+    projectName = Column(String)
     descrizioneProgetto = Column(String)
     datInizio = Column(DateTime, default=datetime.utcnow)
     datFine = Column(DateTime)

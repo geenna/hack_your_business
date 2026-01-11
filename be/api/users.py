@@ -115,7 +115,6 @@ def activate_user(user_id: str, db: Session = Depends(auth.get_db), current_user
 def read_users(db: Session = Depends(auth.get_db), user: models.User = Depends(allow_admin_only)):
     stmt = select(models.User)
     users = db.execute(stmt).scalars().all()
-    users = db.execute(stmt).scalars().all()
     return users
     
 @router.put("/users/{user_id}/change-password")

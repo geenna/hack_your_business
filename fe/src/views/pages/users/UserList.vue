@@ -165,6 +165,7 @@ const isUserCreateDialogVisible = ref(false)
       class="mb-6"
     >
       <VCardText>
+      
         <VRow>
           <!-- 👉 Select Role -->
           <VCol
@@ -182,11 +183,11 @@ const isUserCreateDialogVisible = ref(false)
           </VCol>
 
           <!-- 👉 Select Status -->
-          <VCol
+          <!-- <VCol
             cols="12"
             sm="4"
           >
-            <VSelect
+           <VSelect
               v-model="selectedStatus"
               label="Select Status"
               placeholder="Select Status"
@@ -194,29 +195,32 @@ const isUserCreateDialogVisible = ref(false)
               clearable
               clear-icon="ri-close-line"
             />
-          </VCol>
+          </VCol>-->
+
+          <VCol
+            cols="12"
+            sm="4"
+          > <VTextField
+            v-model="searchQuery"
+            placeholder="Search User"
+           
+          />
+          <!-- 👉 Add user button -->
+        </VCol>
+       
+          <VCol
+            cols="12"
+            sm="4"
+          >  
+          <VBtn class = "mt-1"  @click="isUserCreateDialogVisible = true">
+            Aggiungi Utente
+          </VBtn></VCol>
         </VRow>
       </VCardText>
 
       <VDivider />
 
-      <VCardText class="d-flex flex-wrap gap-4">
-        <VSpacer />
-        <div class="app-user-search-filter d-flex align-center">
-          <!-- 👉 Search  -->
-          <VTextField
-            v-model="searchQuery"
-            placeholder="Search User"
-            density="compact"
-            class="me-4"
-          />
-          <!-- 👉 Add user button -->
-          <VBtn @click="isUserCreateDialogVisible = true">
-            Aggiungi Utente
-          </VBtn>
-        </div>
-      </VCardText>
-
+      
       <!-- SECTION datatable -->
       <VDataTable
         v-model:items-per-page="itemsPerPage"

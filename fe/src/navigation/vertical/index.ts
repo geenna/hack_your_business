@@ -11,7 +11,7 @@ export default [
   },
   {
     title: 'Progetti',
-    target: '_blank',
+    to: { name: 'project-main' },
     icon: { icon: 'ri-file-text-line' },
     action: 'all',
     subject: 'project',

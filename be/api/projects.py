@@ -85,14 +85,14 @@ def read_users(db: Session = Depends(auth.get_db), user: models.User = Depends(a
         )
         projects_map[project.id].userToProjects.append(relation_model)
 
-        if user_obj.id not in users_map:
+        if user.id not in users_map:
             # 1. Estraiamo il dizionario dall'oggetto SQLAlchemy
-            user_data = user_obj.__dict__.copy()
+            user_data = user.__dict__.copy()
             
             # 2. Eliminiamo gli attributi che non vogliamo
-            user_data.pop('role', None) 
+            user_data.pop('roles', None) 
             user_data.pop('_sa_instance_state', None) # Pulizia necessaria per SQLAlchemy
             
             # 3. Creiamo l'istanza dello schema senza l'id
-            users_map[user_obj.id] = user_schema.UserBase(**user_data)
+            users_map[user.id] = user_schema.UserBase(**user_data)
     return {"serverTime": datetime.now(), "users": users_map, "userToProjects": list(projects_map.values())}

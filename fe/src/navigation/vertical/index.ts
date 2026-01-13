@@ -20,11 +20,6 @@ export default [
       action: 'all',
       subject: 'project',
     }, {
-      title: 'Lista',
-      to: { name: 'project-list' },
-      action: 'all',
-      subject: 'project',
-    }, {
       title: 'Nuovo',
       to: { name: 'project-new' },
     }]

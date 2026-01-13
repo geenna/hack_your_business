@@ -36,6 +36,12 @@ class ProjectFull(ProjectBase):
     def check_stato(cls, v: str, info) -> str:
         # Inserisci qui la tua logica
         # Esempio: calcola stato basato su date, o trasforma il valore
+        # Non lo so, da capire se lo stato deve essere calcolato dinamicamente o se è un campo statico
+        if info.data.get('stato') == 'IN_PROGRESS' and info.data.get('avanzamento') < 100:
+            if info.data.get('datFine') < datetime.now():
+                return 'EXPIRED'
+            elif (info.data.get('datFine') - datetime.now()).days < 30:
+                return 'EXPIRING'
         return v
 
 class ProjectFullResponse(ProjectFull):

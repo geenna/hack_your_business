@@ -3,58 +3,45 @@ import { useTheme } from 'vuetify'
 import avatar2 from '@images/avatars/avatar-2.png'
 import ProjectService from '@/services/ProjectService'
 import { UserDetail } from '@/types/UserProperties'
-import { ProjectWithUserRole } from '@/types/ProjectWithUserRole'
+import { ProjectFull } from '@/types/UserToProjectSchema'
 const { name } = useTheme()
 
-const userData = inject('userData') as Ref<UserDetail | undefined>
-const isLoading = ref(false)
-const projects = ref<ProjectWithUserRole[]>([])
+const props = defineProps<{progetti: ProjectFull[]}>() 
 
-const getProjectsByUser = () => {
-    isLoading.value = true
-    ProjectService.getAllProjectsByUser(userData.value!.id)
-        .then(response => {
-            projects.value = response.data
-        })
-        .catch(error => {
-            console.error(error)
-        })
-        .finally(() => {
-            isLoading.value = false
-        })
-}
-
-watch(userData, () => {
-    if (userData.value?.id ) {
-        getProjectsByUser()
-    }
-}, { immediate: true })
 
 const projectTableHeaders = [
   {
     title: 'Progetto',
     key: 'projectName',
-  },
-    {
-    title: 'Ruolo',
-    key: 'role',
+    
   },
   {
     title: 'Data Inizio',
     key: 'datInizio',
-  },
-
-  {
+    width: '150px'
+  },{
     title: 'Data Fine',
     key: 'datFine',
+    width: '150px'
+
   },
   {
     title: '% Completamento',
     key: 'avanzamento',
+    align:'center',
+    width: '200px'
+
   },
   {
     title: 'Costo (€)',
     key: 'costo',
+    width: '150px',
+    align:'end'
+  },
+   {
+    title: 'Azioni',
+    width: '80px',
+    key: 'azioni',
   },
 ]
 
@@ -79,9 +66,9 @@ const resolveUserProgressVariant = (progress:number) => {
     <VCol cols="12">
       <VCard title="Project List">
         <template #append>
-          <VTextField
+           <VTextField class="mr-4"
             v-model="search"
-            placeholder="Search Project"
+            placeholder="Cerca Progetto"
             density="compact"
             style="inline-size: 10rem;"
           />
@@ -92,13 +79,12 @@ const resolveUserProgressVariant = (progress:number) => {
         <VDataTable
           :search="search"
           :headers="projectTableHeaders"
-          :items="projects"
-          item-value="name"
+          :items="props.progetti"
           class="rounded-0"
         >
           <!-- projects -->
           <template #item.projectName="{ item }">
-            <div class="d-flex align-center">
+            <div class="d-flex align-center py-2">
               <VAvatar
                 :size="34"
                 class="me-3"
@@ -114,20 +100,32 @@ const resolveUserProgressVariant = (progress:number) => {
               </div>
             </div>
           </template>
-          <template #item.datInizio="{ item }"> {{ new Date(item.datInizio).toLocaleDateString() }} </template>
-          <template #item.datFine="{ item }"> {{ new Date(item.datFine).toLocaleDateString() }} </template>
+          <template #item.datInizio="{ item }"> {{ item.datInizio ? new Date(item.datInizio).toLocaleDateString() : '-' }} </template>
+          <template #item.datFine="{ item }"> {{ item.datFine ? new Date(item.datFine).toLocaleDateString() : '-' }} </template>
           <template #item.costo="{ item }"> {{ item.costo }} € </template>
           <!-- Progress -->
           <template #item.avanzamento="{ item }">
             <div class="text-high-emphasis">
-              {{ item.avanzamento }}%
+              {{ item.avanzamento || 0 }}%
             </div>
             <VProgressLinear
               :height="6"
-              :model-value="item.avanzamento"
+              :model-value="item.avanzamento || 0"
               rounded
-              :color="resolveUserProgressVariant(item.avanzamento)"
+              :color="resolveUserProgressVariant(item.avanzamento || 0)"
             />
+          </template>
+          <template #item.azioni="{ item }">
+            <VBtn
+              size="small"
+              color="primary"
+              variant="text"
+            >
+              <VIcon
+                icon="ri-search-ai-2-line"
+                size="20"
+              />
+            </VBtn>
           </template>
 
           <!-- remove footer -->

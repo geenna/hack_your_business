@@ -5,7 +5,7 @@ from typing import List
 from .. import auth
 from ..persistence.model import UserModel as models
 from ..persistence.model.BillingAddressModel import BillingAddressModel
-from ..persistence.schemas import UserSchema as schemas
+from ..persistence.schemas import UserSchema as user_schema
 from ..persistence.schemas import ProjectSchema as project_schemas
 from ..service import billing_service
 from ..service import project_service
@@ -70,6 +70,7 @@ def read_users(db: Session = Depends(auth.get_db), user: models.User = Depends(a
 def read_users(db: Session = Depends(auth.get_db), user: models.User = Depends(allow_admin_only)):
     results = project_service.get_projects_full(db, None)
     projects_map = {}
+    users_map = {}
     for project, relation, user in results:
         if project.id not in projects_map:
             # Create ProjectFull instance, initializing id from project.id and copying other fields
@@ -84,4 +85,14 @@ def read_users(db: Session = Depends(auth.get_db), user: models.User = Depends(a
         )
         projects_map[project.id].userToProjects.append(relation_model)
 
-    return {"serverTime": datetime.now(), "users": [], "userToProjects": list(projects_map.values())}
+        if user_obj.id not in users_map:
+            # 1. Estraiamo il dizionario dall'oggetto SQLAlchemy
+            user_data = user_obj.__dict__.copy()
+            
+            # 2. Eliminiamo gli attributi che non vogliamo
+            user_data.pop('role', None) 
+            user_data.pop('_sa_instance_state', None) # Pulizia necessaria per SQLAlchemy
+            
+            # 3. Creiamo l'istanza dello schema senza l'id
+            users_map[user_obj.id] = user_schema.UserBase(**user_data)
+    return {"serverTime": datetime.now(), "users": users_map, "userToProjects": list(projects_map.values())}

@@ -10,18 +10,19 @@ import CreateUserDialog from '../CreateUserDialog.vue'
 const { show: showConfirm } = useConfirm()
 const { show: showAlert } = useAlert()
 
-const userData :UserDetail = inject('userData') as UserDetail
+const userData :Ref<UserDetail> = inject('userData') as Ref<UserDetail>  
 
 const onSuspend = async () => {
+
     const confirmed = await showConfirm(
         'Sospensione Utente',
-        `Sei sicuro di voler sospendere l'utente ${userData.nome} ${userData.cognome}?`
+        `Sei sicuro di voler sospendere l'utente ${userData.value.nome} ${userData.value.cognome}?`
     )
 
     if (confirmed) {
         try {
-            await UserService.suspendUser(userData.id)
-            userData.user_status = 'DISATTIVO'
+            await UserService.suspendUser(userData.value.id)
+            userData.value.user_status = 'DISATTIVO'
             showAlert('Successo', 'Utente sospeso con successo', 'success')
         } catch (error) {
             // Error is handled by global interceptor, but we can catch specific logic here if needed
@@ -32,13 +33,13 @@ const onSuspend = async () => {
 const onActivate = async () => {
     const confirmed = await showConfirm(
         'Attivazione Utente',
-        `Sei sicuro di voler attivare l'utente ${userData.nome} ${userData.cognome}?`
+        `Sei sicuro di voler attivare l'utente ${userData.value.nome} ${userData.value.cognome}?`
     )
 
     if (confirmed) {
         try {
-            await UserService.activateUser(userData.id)
-            userData.user_status = 'ATTIVO'
+            await UserService.activateUser(userData.value.id)
+            userData.value.user_status = 'ATTIVO'
             showAlert('Successo', 'Utente attivato con successo', 'success')
         } catch (error) {
             // Error is handled by global interceptor, but we can catch specific logic here if needed
@@ -60,7 +61,7 @@ const isUserInfoEditDialogVisible = ref(false)
 const isUpgradePlanDialogVisible = ref(false)
 
 const onUserUpdate = async (updatedUser: any) => {
-    Object.assign(userData, updatedUser)
+    Object.assign(userData.value, updatedUser)
     showAlert('Successo', 'Dati utente aggiornati con successo', 'success')
 }
 

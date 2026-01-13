@@ -6,7 +6,8 @@ import illustration2 from '@images/cards/illustration-2.png'
 
 
 import ProjectService from '@/services/ProjectService'
-import { ProjectFull } from '@/types/UserToProjectSchema'
+import { ProjectFull, UserToProjectFull } from '@/types/UserToProjectSchema'
+import { UserDetail } from '@/types/UserProperties'
 
 const cardStatisticsWithImages = [
   {
@@ -26,19 +27,28 @@ const cardStatisticsWithImages = [
 ]
 
 const currentTab = ref(0)
-const projects = ref<ProjectFull[]>([])
+const userToProjects = ref<ProjectFull[]>([])
 
 onMounted(async () => {
   try {
     const response = await ProjectService.getProjectsFull()
-    projects.value = response.data
-    console.log(projects.value)
-  } catch (error) {
+    debugger;
+    let userMap = response.data["users"] 
+    userToProjects.value = response.data["userToProjects"]
+    userToProjects.value.forEach((project:ProjectFull) => {
+     
+      project.userToProjects?.forEach((userToProject:UserToProjectFull) => {
+        if (userMap[userToProject.userId]) {
+          userToProject.users = userMap[userToProject.userId] as [UserDetail]
+        }
+      })
+    })
+  } catch(error) {
     console.error('Error fetching projects:', error)
   }
 })
 </script>
-<template>
+<template>  
     <!--class="match-height"-->
     <VRow >
       <VCol

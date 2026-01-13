@@ -9,7 +9,7 @@ from ..persistence.schemas import UserSchema as schemas
 from ..persistence.schemas import ProjectSchema as project_schemas
 from ..service import billing_service
 from ..service import project_service
-
+from datetime import datetime
 # Role Based Endpoints
 allow_admin_only = auth.RoleChecker(["all"])
 allow_user_only = auth.RoleChecker(["user"])
@@ -63,3 +63,25 @@ def read_users(db: Session = Depends(auth.get_db), user: models.User = Depends(a
         }
         projects_data.append(project_dict)
     return projects_data
+
+
+
+@router.get("/user-projects-full/", response_model=dict)
+def read_users(db: Session = Depends(auth.get_db), user: models.User = Depends(allow_admin_only)):
+    results = project_service.get_projects_full(db, None)
+    projects_map = {}
+    for project, relation, user in results:
+        if project.id not in projects_map:
+            # Create ProjectFull instance, initializing id from project.id and copying other fields
+            projects_map[project.id] = project_schemas.ProjectFull(
+                **project.__dict__,
+                userToProjects=[]
+            )
+        
+        # Create UserToProjectFull instance
+        relation_model = project_schemas.UserToProjectBase(
+             **relation.__dict__
+        )
+        projects_map[project.id].userToProjects.append(relation_model)
+
+    return {"serverTime": datetime.now(), "users": [], "userToProjects": list(projects_map.values())}

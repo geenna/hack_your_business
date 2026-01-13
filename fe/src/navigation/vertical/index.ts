@@ -13,8 +13,21 @@ export default [
     title: 'Progetti',
     to: { name: 'project-main' },
     icon: { icon: 'ri-file-text-line' },
-    action: 'all',
-    subject: 'project',
+
+    children: [{
+      title: 'Overview',
+      to: { name: 'project-main' },
+      action: 'all',
+      subject: 'project',
+    }, {
+      title: 'Lista',
+      to: { name: 'project-list' },
+      action: 'all',
+      subject: 'project',
+    }, {
+      title: 'Nuovo',
+      to: { name: 'project-new' },
+    }]
   },
   {
     title: 'CoWork',

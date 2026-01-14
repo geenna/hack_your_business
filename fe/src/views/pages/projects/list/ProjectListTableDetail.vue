@@ -1,13 +1,12 @@
 <script setup lang="ts">
 import { useTheme } from 'vuetify'
 import avatar2 from '@images/avatars/avatar-2.png'
-import ProjectService from '@/services/ProjectService'
-import { UserDetail } from '@/types/UserProperties'
+
 import { ProjectFull } from '@/types/UserToProjectSchema'
 const { name } = useTheme()
 
 const props = defineProps<{progetti: ProjectFull[]}>() 
-
+const openDetailDialog = ref(false)
 
 const projectTableHeaders = [
   {
@@ -28,7 +27,7 @@ const projectTableHeaders = [
   {
     title: '% Completamento',
     key: 'avanzamento',
-    align:'center',
+    align:'center' as const,
     width: '200px'
 
   },
@@ -36,7 +35,7 @@ const projectTableHeaders = [
     title: 'Costo (€)',
     key: 'costo',
     width: '150px',
-    align:'end'
+    align:'end' as const
   },
    {
     title: 'Azioni',
@@ -45,6 +44,11 @@ const projectTableHeaders = [
   },
 ]
 
+const emit = defineEmits(['openDetailProject'])
+const openDetailProject = (item: ProjectFull) => {
+
+  emit('openDetailProject', item)
+}
 const search = ref('')
 
 const resolveUserProgressVariant = (progress:number) => {
@@ -120,6 +124,7 @@ const resolveUserProgressVariant = (progress:number) => {
               size="small"
               color="primary"
               variant="text"
+              @click="openDetailProject(item)"
             >
               <VIcon
                 icon="ri-search-ai-2-line"

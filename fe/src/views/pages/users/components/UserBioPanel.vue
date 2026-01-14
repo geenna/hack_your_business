@@ -135,7 +135,7 @@ const resolveUserRoleVariant = (role: string) => {
         <!-- 👉 Details -->
         <VCardText class="pb-6">
           <h5 class="text-h5">
-            Details
+            Dettaglio
           </h5>
 
           <VDivider class="my-4" />

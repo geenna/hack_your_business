@@ -1,12 +1,15 @@
 <script setup lang="ts">
 import { ProjectFull } from '@/types/UserToProjectSchema'
+import ConfirmDialog from '@/components/dialogs/ConfirmDialog.vue'
+import ProjectService from '@/services/ProjectService';
+import { inject, ref } from 'vue';
 
 
-const emit = defineEmits(['onDetailUser'])
 // 👉 Store
 const searchQuery = ref('')
 const selectedRole = ref()
-const project :Ref<ProjectFull> = inject('projectSelected') as Ref<ProjectFull>  
+const project :Ref<ProjectFull> = inject('projectSelected') as Ref<ProjectFull>
+const refreshProjects = inject('refreshProjects') as () => void  
 
 // Data table options
 const itemsPerPage = ref(10)
@@ -59,8 +62,24 @@ const resolveUserRoleVariant = (role: string) => {
 
 
 // 👉 Delete user
+// 👉 Delete user
+const isConfirmDialogVisible = ref(false)
+const userToDelete = ref<{projectId: string, userId: string} | null>(null)
+
 const deleteUser = async (projectId: any, userId: any) => {
- 
+  userToDelete.value = { projectId, userId }
+  isConfirmDialogVisible.value = true
+}
+
+const onConfirmDelete = async (confirmed: boolean) => {
+    if (confirmed && userToDelete.value) {
+        try {
+            await ProjectService.removeCollaborator(userToDelete.value.projectId, userToDelete.value.userId)
+            refreshProjects()
+        } catch (error) {
+            console.error("Error removing collaborator:", error)
+        }
+    }
 }
 
 
@@ -94,6 +113,16 @@ const isUserCreateDialogVisible = ref(false)
             </template>
         </VDataTable>
     </section>
+
+    <ConfirmDialog
+      v-model:isDialogVisible="isConfirmDialogVisible"
+      confirmation-question="Sei sicuro di voler rimuovere questo collaboratore?"
+      confirm-title="Eliminato!"
+      confirm-msg="Il collaboratore è stato rimosso dal progetto."
+      cancel-title="Annullato"
+      cancel-msg="Rimozione annullata."
+      @confirm="onConfirmDelete"
+    />
 </template>
 
 <style lang="scss">

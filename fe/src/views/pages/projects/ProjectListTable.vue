@@ -34,23 +34,27 @@ const projectTableHeaders = [
   {
     title: 'Progetto',
     key: 'projectName',
+    width: '300px',
   },
     {
     title: 'Ruolo',
     key: 'role',
+    width: '100px',
   },
   {
-    title: 'Data Inizio',
+    title: 'Inizio',
     key: 'datInizio',
+    width: '100px',
   },
 
   {
-    title: 'Data Fine',
+    title: 'Fine',
     key: 'datFine',
   },
   {
     title: '% Completamento',
     key: 'avanzamento',
+    align: 'center',
   },
   {
     title: 'Costo (€)',
@@ -108,9 +112,11 @@ const resolveUserProgressVariant = (progress:number) => {
                 <h6 class="text-h6 mb-0">
                   {{ item.projectName }}
                 </h6>
+                
                 <p class="text-sm text-medium-emphasis mb-0">
-                  {{ item.descrizioneProgetto }}
+                  {{ item.descrizioneProgetto && item.descrizioneProgetto.length > 40 ? item.descrizioneProgetto.substring(0, 40) + '...' : item.descrizioneProgetto }}
                 </p>
+              
               </div>
             </div>
           </template>

@@ -1,16 +1,96 @@
+<template>
+  <VCard>
+    <VCardItem>
+      <VCardTitle>Sales Overview</VCardTitle>
+
+      <template #append>
+        <div class="me-n3">
+          <MoreBtn />
+        </div>
+      </template>
+    </VCardItem>
+
+    <VCardText class="pt-5">
+      <div class="d-flex gap-6 flex-md-row flex-column">
+        <div class="mx-auto">
+          <VueApexCharts
+            type="donut"
+            :options="options"
+            :series="series"
+            :height="220"
+            :width="220"
+          />
+        </div>
+
+        <div>
+          <div class="d-flex align-center">
+            <div class="me-3">
+              <VAvatar
+                rounded
+                color="primary"
+                variant="tonal"
+              >
+                <VIcon icon="ri-wallet-line" />
+              </VAvatar>
+            </div>
+            <div>
+              <p class="mb-0">
+                Numero di Progetti
+              </p>
+              <h5 class="text-h5">
+               54 
+              </h5>
+            </div>
+          </div>
+          <VDivider class="my-6" />
+
+          <div>
+            <VRow>
+              <VCol
+                v-for="sale in salesOverviews"
+                :key="sale.product"
+                cols="6"
+              >
+                <div class="d-flex align-center mb-1">
+                  <VIcon
+                    icon="ri-circle-fill"
+                    color="primary"
+                    size="10"
+                    class="me-2"
+                  />
+                  <div
+                    class="text-truncate"
+                    style="max-inline-size: 85px;"
+                  >
+                    {{ sale.product }}
+                  </div>
+                </div>
+                <h6 class="text-h6 text-medium-emphasis">
+                  {{ sale.sales }}
+                </h6>
+              </VCol>
+            </VRow>
+          </div>
+        </div>
+      </div>
+    </VCardText>
+  </VCard>
+</template>
 <script setup lang="ts">
 import { useTheme } from 'vuetify'
 import { hexToRgb } from '@core/utils/colorConverter'
+import { inject } from 'vue'
 
 const vuetifyTheme = useTheme()
 
-const options = computed(() => {
+  const options = computed(() => {
   const currentTheme = ref(vuetifyTheme.current.value.colors)
   const variableTheme = ref(vuetifyTheme.current.value.variables)
 
   const secondaryTextColor = `rgba(${hexToRgb(currentTheme.value['on-surface'])},${variableTheme.value['medium-emphasis-opacity']})`
   const primaryTextColor = `rgba(${hexToRgb(currentTheme.value['on-surface'])},${variableTheme.value['high-emphasis-opacity']})`
-
+  const stats = inject('s', {numInCorso: 0, numInScadenza: 0, numScaduti: 0, numCompletati: 0})
+  const numProgettiTotale = computed(() => stats.numInCorso + stats.numInScadenza + stats.numScaduti + stats.numCompletati)
   return {
     chart: {
       sparkline: { enabled: true },
@@ -87,82 +167,3 @@ const salesOverviews = [
   },
 ]
 </script>
-
-<template>
-  <VCard>
-    <VCardItem>
-      <VCardTitle>Sales Overview</VCardTitle>
-
-      <template #append>
-        <div class="me-n3">
-          <MoreBtn />
-        </div>
-      </template>
-    </VCardItem>
-
-    <VCardText class="pt-5">
-      <div class="d-flex gap-6 flex-md-row flex-column">
-        <div class="mx-auto">
-          <VueApexCharts
-            type="donut"
-            :options="options"
-            :series="series"
-            :height="220"
-            :width="220"
-          />
-        </div>
-
-        <div>
-          <div class="d-flex align-center">
-            <div class="me-3">
-              <VAvatar
-                rounded
-                color="primary"
-                variant="tonal"
-              >
-                <VIcon icon="ri-wallet-line" />
-              </VAvatar>
-            </div>
-            <div>
-              <p class="mb-0">
-                Numero di Progetti
-              </p>
-              <h5 class="text-h5">
-                54
-              </h5>
-            </div>
-          </div>
-          <VDivider class="my-6" />
-
-          <div>
-            <VRow>
-              <VCol
-                v-for="sale in salesOverviews"
-                :key="sale.product"
-                cols="6"
-              >
-                <div class="d-flex align-center mb-1">
-                  <VIcon
-                    icon="ri-circle-fill"
-                    color="primary"
-                    size="10"
-                    class="me-2"
-                  />
-                  <div
-                    class="text-truncate"
-                    style="max-inline-size: 85px;"
-                  >
-                    {{ sale.product }}
-                  </div>
-                </div>
-                <h6 class="text-h6 text-medium-emphasis">
-                  {{ sale.sales }}
-                </h6>
-              </VCol>
-            </VRow>
-          </div>
-        </div>
-      </div>
-    </VCardText>
-  </VCard>
-</template>

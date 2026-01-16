@@ -5,12 +5,19 @@ import { inject, ref } from 'vue'
 import ProjectFullOverview from './ProjectFullOverview.vue'
 import { ProjectFull } from '@/types/UserToProjectSchema'
 import UserAllowedList from './UserAllowedList.vue'
+import AggiungiCollaboratoreDialog from './AggiungiCollaboratoreDialog.vue'
+import AggiungiDocumentoDialog from './AggiungiDocumentoDialog.vue'
 
 const project :Ref<ProjectFull> = inject('projectSelected') as Ref<ProjectFull>  
 
 
 
+
 const projectTab = ref(null)
+const isAddCollaboratorDialogOpen = ref(false)
+const isAddDocumentDialogOpen = ref(false)
+
+const refreshProjects = inject('refreshProjects') as () => void
 
 const emit = defineEmits(['onBack'])
 
@@ -65,7 +72,6 @@ const tabs = [
             <VCardTitle>{{ project.projectName }}</VCardTitle>
             <VCardText>
               {{ project.descrizioneProgetto }}
-              {{ project }}
             </VCardText>
           </VCard>
           
@@ -74,7 +80,10 @@ const tabs = [
             <template #append>
               <VBtn
                 size="small"
-                prepend-icon="ri-add-line">Aggiungi collaboratore
+                prepend-icon="ri-add-line"
+                @click="isAddCollaboratorDialogOpen = true"
+              >
+                Aggiungi collaboratore
               </VBtn>
             </template>
             <VCardText>
@@ -88,7 +97,10 @@ const tabs = [
             <template #append>
               <VBtn
                 size="small"
-                prepend-icon="ri-add-line">Aggiungi documento
+                prepend-icon="ri-add-line"
+                @click="isAddDocumentDialogOpen = true"
+              >
+                Aggiungi documento
               </VBtn>
             </template>
             <VCardText>
@@ -99,4 +111,7 @@ const tabs = [
       </VWindow>
     </VCol>
   </VRow>
+
+  <AggiungiCollaboratoreDialog v-model:isDrawerOpen="isAddCollaboratorDialogOpen" @refresh="refreshProjects" />
+  <AggiungiDocumentoDialog v-model:isDrawerOpen="isAddDocumentDialogOpen" />
 </template>

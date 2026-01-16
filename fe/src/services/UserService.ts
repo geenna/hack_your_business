@@ -4,6 +4,9 @@ export default {
     async getAllUsers() {
         return api.get('/users')
     },
+    async getCollaborators() {
+        return api.get('/users/collaborators')
+    },
     async detailUser(id: string) {
         return api.get(`/user-detail/${id}`)
     },

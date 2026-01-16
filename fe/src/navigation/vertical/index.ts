@@ -11,18 +11,8 @@ export default [
   },
   {
     title: 'Progetti',
-    to: { name: 'project-main' },
     icon: { icon: 'ri-file-text-line' },
-
-    children: [{
-      title: 'Overview',
-      to: { name: 'project-main' },
-      action: 'all',
-      subject: 'project',
-    }, {
-      title: 'Nuovo',
-      to: { name: 'project-new' },
-    }]
+    to: { name: 'project-main' },
   },
   {
     title: 'CoWork',

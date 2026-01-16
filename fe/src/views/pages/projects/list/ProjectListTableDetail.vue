@@ -3,10 +3,13 @@ import { useTheme } from 'vuetify'
 import avatar2 from '@images/avatars/avatar-2.png'
 
 import { ProjectFull } from '@/types/UserToProjectSchema'
+import CreateProjectDialog from '@/views/pages/projects/detail/CreateProjectDialog.vue'
+
 const { name } = useTheme()
 
-const props = defineProps<{progetti: ProjectFull[]}>() 
+const props = defineProps<{progetti: ProjectFull[]}>()
 const openDetailDialog = ref(false)
+const isCreateDialogVisible = ref(false)
 
 const projectTableHeaders = [
   {
@@ -76,6 +79,7 @@ const resolveUserProgressVariant = (progress:number) => {
             density="compact"
             style="inline-size: 10rem;"
           />
+          <VBtn class="mr-4" color="primary" @click="isCreateDialogVisible = true">Aggiungi Progetto</VBtn>
         </template>
         <!-- 👉 User Project List Table -->
 
@@ -99,7 +103,7 @@ const resolveUserProgressVariant = (progress:number) => {
                   {{ item.projectName }}
                 </h6>
                 <p class="text-sm text-medium-emphasis mb-0">
-                  {{ item.descrizioneProgetto }}
+                  {{ item.descrizioneProgetto && item.descrizioneProgetto.length > 250 ? item.descrizioneProgetto.substring(0, 250) + '...' : item.descrizioneProgetto }}
                 </p>
               </div>
             </div>
@@ -141,6 +145,8 @@ const resolveUserProgressVariant = (progress:number) => {
       </VCard>
     </VCol>
     </VRow>
+    
+    <CreateProjectDialog v-model:isDrawerOpen="isCreateDialogVisible" />
 </template>
 
 <style lang="scss" scoped>

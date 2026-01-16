@@ -9,6 +9,7 @@ class UserToProjectBase(BaseModel):
     role: Optional[str] = None
     active: Optional[bool] = None
     datCreation: Optional[datetime] = None
+    avanzamento: Optional[int] = None
 
 class UserToProjectCreate(UserToProjectBase):
     pass

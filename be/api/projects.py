@@ -10,6 +10,7 @@ from ..persistence.schemas import ProjectSchema as project_schemas
 from ..service import billing_service
 from ..service import project_service
 from datetime import datetime
+from ..util import statistiche_progetti
 # Role Based Endpoints
 allow_admin_only = auth.RoleChecker(["all"])
 allow_user_only = auth.RoleChecker(["user"])
@@ -69,7 +70,7 @@ def read_users(db: Session = Depends(auth.get_db), user: models.User = Depends(a
 @router.get("/user-projects-full/", response_model=dict)
 def read_users(db: Session = Depends(auth.get_db), user: models.User = Depends(allow_admin_only)):
     results = project_service.get_projects_full(db, None)
-    projects_map = {}
+    projects_map = {} # type: dict[str, project_schemas.ProjectFull]
     users_map = {}
     for project, relation, user in results:
         if project.id not in projects_map:
@@ -80,12 +81,13 @@ def read_users(db: Session = Depends(auth.get_db), user: models.User = Depends(a
             )
         
         # Create UserToProjectFull instance
-        relation_model = project_schemas.UserToProjectBase(
-             **relation.__dict__
-        )
-        projects_map[project.id].userToProjects.append(relation_model)
+        if relation:
+            relation_model = project_schemas.UserToProjectBase(
+                 **relation.__dict__
+            )
+            projects_map[project.id].userToProjects.append(relation_model)
 
-        if user.id not in users_map:
+        if user and user.id not in users_map:
             # 1. Estraiamo il dizionario dall'oggetto SQLAlchemy
             user_data = user.__dict__.copy()
             
@@ -95,4 +97,35 @@ def read_users(db: Session = Depends(auth.get_db), user: models.User = Depends(a
             
             # 3. Creiamo l'istanza dello schema senza l'id
             users_map[user.id] = user_schema.UserBase(**user_data)
-    return {"serverTime": datetime.now(), "users": users_map, "userToProjects": list(projects_map.values())}
+    stats = statistiche_progetti([project for project, relation, user in results])
+    return { **stats, "serverTime": datetime.now(), "users": users_map, "userToProjects": list(projects_map.values())}
+
+@router.post("/{project_id}/collaborators")
+def add_collaborators(project_id: str, request: project_schemas.AddCollaboratorRequest, db: Session = Depends(auth.get_db), user: models.User = Depends(allow_admin_only)):
+    project_service.add_collaborators(project_id, request.userIds, db)
+    return {"message": "Collaborators added successfully"}
+
+@router.delete("/{project_id}/collaborators/{user_id}")
+def remove_collaborator(project_id: str, user_id: str, db: Session = Depends(auth.get_db), user: models.User = Depends(allow_admin_only)):
+    success = project_service.remove_collaborator(project_id, user_id, db)
+    if not success:
+        raise HTTPException(status_code=404, detail="Collaborator not found")
+    return {"message": "Collaborator removed successfully"}
+
+@router.put("/{project_id}", response_model=project_schemas.ProjectResponse)
+def update_project(project_id: str, project: project_schemas.ProjectUpdate, db: Session = Depends(auth.get_db), user: models.User = Depends(allow_admin_only)):
+    updated_project = project_service.update_project(project_id, project.dict(exclude_unset=True), db)
+    if not updated_project:
+        raise HTTPException(status_code=404, detail="Project not found")
+    return updated_project
+
+@router.post("/", response_model=project_schemas.ProjectResponse)
+def create_project(project: project_schemas.ProjectCreate, db: Session = Depends(auth.get_db), user: models.User = Depends(auth.get_current_user)):
+    return project_service.create_project(project.dict(), user.id, db)
+
+@router.delete("/{project_id}")
+def delete_project(project_id: str, db: Session = Depends(auth.get_db), user: models.User = Depends(allow_admin_only)):
+    success = project_service.delete_project(project_id, db)
+    if not success:
+        raise HTTPException(status_code=404, detail="Project not found")
+    return {"message": "Project deleted successfully"}

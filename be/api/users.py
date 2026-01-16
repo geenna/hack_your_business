@@ -116,6 +116,12 @@ def read_users(db: Session = Depends(auth.get_db), user: models.User = Depends(a
     stmt = select(models.User)
     users = db.execute(stmt).scalars().all()
     return users
+
+@router.get("/users/collaborators", response_model=List[schemas.UserResponse])
+def read_collaborators(db: Session = Depends(auth.get_db), user: models.User = Depends(allow_admin_only)):
+    stmt = select(models.User).where(models.User.userType == 'Collaboratore')
+    users = db.execute(stmt).scalars().all()
+    return users
     
 @router.put("/users/{user_id}/change-password")
 def change_password(user_id: str, password_data: schemas.UserPasswordChange, db: Session = Depends(auth.get_db), current_user: models.User = Depends(allow_admin_only)):

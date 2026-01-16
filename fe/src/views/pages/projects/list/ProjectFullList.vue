@@ -29,21 +29,21 @@
             
           >
             <VTab prepend-icon="ri-loader-line">
-              In corso
+              In corso ({{stats.numInCorso}})
             </VTab>
             <VTab prepend-icon="ri-alarm-warning-line">
-              In scadenza
+              In scadenza ({{stats.numInScadenza}})
             </VTab>
             <VTab prepend-icon="ri-alert-line">
-              Scaduti
+              Scaduti ({{stats.numScaduti}})
             </VTab>
             <VTab prepend-icon="ri-check-line">
-              completati
+              completati ({{stats.numCompletati}})
             </VTab>
           </VTabs>
           <VWindow v-model="currentTab">
             <VWindowItem>
-              <ProjectListTableDetail @openDetailProject="openDetailProject" :progetti="userToProjects.filter((project) => project.stato === 'IN PROGRESS')"/>
+              <ProjectListTableDetail @openDetailProject="openDetailProject" :progetti="userToProjects.filter((project) => project.stato === 'IN_PROGRESS')"/>
             </VWindowItem>
 
             <VWindowItem>
@@ -75,7 +75,7 @@ import type { ProjectFull } from '@/types/UserToProjectSchema'
 
 const currentTab = ref(0)  
 const userToProjects = inject<ProjectFull[]>('userToProjects', [])
-
+const stats = inject('stats', {numInCorso: 0, numInScadenza: 0, numScaduti: 0, numCompletati: 0})
 const emit = defineEmits(['openDetailProject'])
 const openDetailProject = (item: ProjectFull) => {
   emit('openDetailProject', item)

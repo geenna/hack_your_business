@@ -97,13 +97,18 @@ def read_users(db: Session = Depends(auth.get_db), user: models.User = Depends(a
             
             # 3. Creiamo l'istanza dello schema senza l'id
             users_map[user.id] = user_schema.UserBase(**user_data)
-    stats = statistiche_progetti([project for project, relation, user in results])
+    stats = statistiche_progetti(projects_map.values())
     return { **stats, "serverTime": datetime.now(), "users": users_map, "userToProjects": list(projects_map.values())}
 
 @router.post("/{project_id}/collaborators")
 def add_collaborators(project_id: str, request: project_schemas.AddCollaboratorRequest, db: Session = Depends(auth.get_db), user: models.User = Depends(allow_admin_only)):
     project_service.add_collaborators(project_id, request.userIds, db)
     return {"message": "Collaborators added successfully"}
+
+@router.post("/{project_id}/owner")
+def add_owner(project_id: str, request: project_schemas.AddCollaboratorRequest, db: Session = Depends(auth.get_db), user: models.User = Depends(allow_admin_only)):
+    project_service.add_owner(project_id, request.userIds, db)
+    return {"message": "Owner added successfully"}
 
 @router.delete("/{project_id}/collaborators/{user_id}")
 def remove_collaborator(project_id: str, user_id: str, db: Session = Depends(auth.get_db), user: models.User = Depends(allow_admin_only)):

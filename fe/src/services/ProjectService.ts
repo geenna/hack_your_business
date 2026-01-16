@@ -10,10 +10,13 @@ export default {
     async getProjectsFull() {
         return api.get<ProjectFull[]>('/projects/user-projects-full/')
     },
-    async addCollaborators(projectId: string, userIds: string[]) {
+    async addRelazioneUtenteProgetto(projectId: string, userIds: string[]) {
         return api.post(`/projects/${projectId}/collaborators`, { userIds })
     },
-    async removeCollaborator(projectId: string, userId: string) {
+    async addOwner(projectId: string, userIds: string[]) {
+        return api.post(`/projects/${projectId}/owner`, { userIds })
+    },
+    async removeRelazioneUtenteProgetto(projectId: string, userId: string) {
         return api.delete(`/projects/${projectId}/collaborators/${userId}`)
     },
     async updateProject(projectId: string, projectData: any) {

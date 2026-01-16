@@ -16,7 +16,7 @@ const isSaving = ref(false)
 const fetchUsers = async () => {
     isLoading.value = true
     try {
-        const response = await UserService.getCollaborators()
+        const response = await UserService.getClienti()
         users.value = response.data
     } catch (error) {
         console.error("Error fetching users:", error)
@@ -40,12 +40,11 @@ const onSave = async () => {
 
     isSaving.value = true
     try {
-      debugger;
-        await ProjectService.addRelazioneUtenteProgetto(project.value.id, selectedUserIds.value)
+        await ProjectService.addOwner(project.value.id, selectedUserIds.value)
         emit('refresh')
         isVisible.value = false
     } catch (error) {
-        console.error("Error adding collaborators:", error)
+        console.error("Error adding clienti:", error)
         // Optionally show error toast
     } finally {
         isSaving.value = false
@@ -58,13 +57,13 @@ const onSave = async () => {
     v-model="isVisible"
     max-width="600"
   >
-    <VCard title="Aggiungi Collaboratore">
+    <VCard title="Aggiungi Cliente proprietario">
       <VCardText>
         <div v-if="isLoading" class="d-flex justify-center align-center py-4">
             <VProgressCircular indeterminate color="primary" />
         </div>
         <div v-else-if="users.length === 0" class="text-center py-4">
-            Nessun collaboratore trovato.
+            Nessun utente trovato.
         </div>
         <VList v-else select-strategy="leaf">
             <VListItem

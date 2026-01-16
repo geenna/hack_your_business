@@ -6,6 +6,7 @@ import ProjectFullOverview from './ProjectFullOverview.vue'
 import { ProjectFull } from '@/types/UserToProjectSchema'
 import UserAllowedList from './UserAllowedList.vue'
 import AggiungiCollaboratoreDialog from './AggiungiCollaboratoreDialog.vue'
+import AggiungiClienteDialog from './AggiungiClienteDialog.vue'
 import AggiungiDocumentoDialog from './AggiungiDocumentoDialog.vue'
 
 const project :Ref<ProjectFull> = inject('projectSelected') as Ref<ProjectFull>  
@@ -15,6 +16,7 @@ const project :Ref<ProjectFull> = inject('projectSelected') as Ref<ProjectFull>
 
 const projectTab = ref(null)
 const isAddCollaboratorDialogOpen = ref(false)
+const isAddClienteDialogOpen = ref(false)
 const isAddDocumentDialogOpen = ref(false)
 
 const refreshProjects = inject('refreshProjects') as () => void
@@ -77,14 +79,19 @@ const tabs = [
           
           
           <VCard class="mt-6" title="Utenti">
+
+
             <template #append>
-              <VBtn
-                size="small"
-                prepend-icon="ri-add-line"
-                @click="isAddCollaboratorDialogOpen = true"
-              >
-                Aggiungi collaboratore
-              </VBtn>
+
+              <VMenu location="bottom">
+                <template #activator="{ props }">
+                  <VBtn v-bind="props" size="small" prepend-icon="ri-add-line">Associa</VBtn>
+                </template>
+                <VList >
+                  <VListItem title="Collaboratore" @click="isAddCollaboratorDialogOpen = true"/>
+                  <VListItem title="Cliente" @click="isAddClienteDialogOpen = true"/>
+                </VList>
+              </VMenu>
             </template>
             <VCardText>
               <UserAllowedList />
@@ -113,5 +120,6 @@ const tabs = [
   </VRow>
 
   <AggiungiCollaboratoreDialog v-model:isDrawerOpen="isAddCollaboratorDialogOpen" @refresh="refreshProjects" />
+  <AggiungiClienteDialog v-model:isDrawerOpen="isAddClienteDialogOpen" @refresh="refreshProjects" />
   <AggiungiDocumentoDialog v-model:isDrawerOpen="isAddDocumentDialogOpen" />
 </template>

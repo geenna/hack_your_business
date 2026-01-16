@@ -1,25 +1,36 @@
 <template>
-    <VRow >
-      <VCol
-        v-for="statistics in cardStatisticsWithImages"
-        :key="statistics.title"
-        class="pt-8 pt-sm-3"
-        cols="12"
-        md="3"
-        sm="6"
-      >
-        <CardStatisticsWithImages v-bind="statistics" />
+    <VRow class="mt-2">
+      <VCol class="pt-8 pt-sm-3" cols="12" md="3" sm="6">
+        <CardStatisticsWithImages v-bind="{
+              title: 'Numero progetti',
+              subtitle: 'Progetti scaduti',
+              stats: stats.numCompletati,
+              image: illustration1,
+              color: 'error',
+          }" />
       </VCol>
-    
+      <VCol class="pt-8 pt-sm-3" cols="12" md="3" sm="6">
+        <CardStatisticsWithImages v-bind="{
+                  title: 'Numero progetti',
+                  subtitle: 'Progetti attivi',
+                  stats: stats.numInCorso + stats.numInScadenza,
+                  image: illustration2,
+                  color: 'primary',
+          }" />
+      </VCol>
 
         <VCol cols="6">
-            <CrmSalesOverview />
+            <CrmSalesOverview  v-bind="{
+                 numInCorso: stats.numInCorso,
+                 numInScadenza: stats.numInScadenza,
+                 numScaduti: stats.numScaduti,
+                 numCompletati: stats.numCompletati,
+          }"/>
         </VCol>
     </VRow>
 
 
     <VCard class="mt-6" >
-      
       <VCardItem>
 
           <VTabs
@@ -84,7 +95,7 @@ const cardStatisticsWithImages = [
 {
     title: 'Numero progetti',
     subtitle: 'Progetti scaduti',
-    stats: '5',
+    stats: 10,
     image: illustration1,
     color: 'error',
 },

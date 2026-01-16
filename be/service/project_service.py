@@ -1,3 +1,4 @@
+from sqlalchemy import distinct
 from ..persistence.model.BillingAddressModel import BillingAddressModel 
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
@@ -42,6 +43,24 @@ def add_collaborators(project_id: str, user_ids: List[str], db: Session):
                 userId=user_id,
                 projectId=project_id,
                 role="PROJMANAGER", # Default role
+                active=True
+            )
+            db.add(new_relation)
+    
+    db.commit()
+    return True
+
+def add_owner(project_id: str, user_ids: List[str], db: Session):
+    for user_id in user_ids:
+        # Check if relation already exists
+        stmt = select(UserToProject).where(UserToProject.projectId == project_id).where(UserToProject.userId == user_id)
+        existing = db.execute(stmt).scalars().first()
+        
+        if not existing:
+            new_relation = UserToProject(
+                userId=user_id,
+                projectId=project_id,
+                role="OWNER", # Default role
                 active=True
             )
             db.add(new_relation)

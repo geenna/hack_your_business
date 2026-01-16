@@ -42,7 +42,7 @@ const projectTableHeaders = [
     width: '100px',
   },
   {
-    title: 'Inizio',
+    title: 'Data Inizio',
     key: 'datInizio',
     width: '100px',
   },

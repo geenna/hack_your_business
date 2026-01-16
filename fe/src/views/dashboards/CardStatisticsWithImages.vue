@@ -2,8 +2,7 @@
 interface Props {
   title: string
   subtitle: string
-  stats: string
-  change: number
+  stats: string | number
   image: string
   color?: string
 }
@@ -12,7 +11,6 @@ const props = withDefaults(defineProps<Props>(), {
   color: 'primary',
 })
 
-const isPositive = computed(() => Math.sign(props.change) === 1)
 </script>
 
 <template>
@@ -26,12 +24,6 @@ const isPositive = computed(() => Math.sign(props.change) === 1)
           <h4 class="text-h4 me-2">
             {{ props.stats }}
           </h4>
-          <div
-            class="text-body-1"
-            :class="isPositive ? 'text-success' : 'text-error'"
-          >
-            {{ isPositive ? `+${props.change}` : props.change }}
-          </div>
         </div>
 
         <VChip

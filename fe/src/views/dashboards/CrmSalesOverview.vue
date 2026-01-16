@@ -1,13 +1,8 @@
 <template>
   <VCard>
     <VCardItem>
-      <VCardTitle>Sales Overview</VCardTitle>
+      <VCardTitle>Progetti</VCardTitle>
 
-      <template #append>
-        <div class="me-n3">
-          <MoreBtn />
-        </div>
-      </template>
     </VCardItem>
 
     <VCardText class="pt-5">
@@ -16,7 +11,7 @@
           <VueApexCharts
             type="donut"
             :options="options"
-            :series="series"
+            :series="[props.numInScadenza, props.numScaduti, props.numInCorso, props.numCompletati]"
             :height="220"
             :width="220"
           />
@@ -35,10 +30,10 @@
             </div>
             <div>
               <p class="mb-0">
-                Numero di Progetti
+                Tot. Progetti
               </p>
               <h5 class="text-h5">
-               54 
+               {{ props.numInCorso + props.numInScadenza + props.numScaduti + props.numCompletati }}
               </h5>
             </div>
           </div>
@@ -47,8 +42,6 @@
           <div>
             <VRow>
               <VCol
-                v-for="sale in salesOverviews"
-                :key="sale.product"
                 cols="6"
               >
                 <div class="d-flex align-center mb-1">
@@ -62,11 +55,74 @@
                     class="text-truncate"
                     style="max-inline-size: 85px;"
                   >
-                    {{ sale.product }}
+                    Completati
                   </div>
                 </div>
                 <h6 class="text-h6 text-medium-emphasis">
-                  {{ sale.sales }}
+                  {{ props.numCompletati }}
+                </h6>
+              </VCol>
+              <VCol
+                cols="6"
+              >
+                <div class="d-flex align-center mb-1">
+                  <VIcon
+                    icon="ri-circle-fill"
+                    color="primary"
+                    size="10"
+                    class="me-2"
+                  />
+                  <div
+                    class="text-truncate"
+                    style="max-inline-size: 85px;"
+                  >
+                    In Scadenza
+                  </div>
+                </div>
+                <h6 class="text-h6 text-medium-emphasis">
+                  {{ props.numInScadenza }}
+                </h6>
+              </VCol>
+              <VCol
+                cols="6"
+              >
+                <div class="d-flex align-center mb-1">
+                  <VIcon
+                    icon="ri-circle-fill"
+                    color="primary"
+                    size="10"
+                    class="me-2"
+                  />
+                  <div
+                    class="text-truncate"
+                    style="max-inline-size: 85px;"
+                  >
+                    Scaduti
+                  </div>
+                </div>
+                <h6 class="text-h6 text-medium-emphasis">
+                  {{ props.numScaduti }}
+                </h6>
+              </VCol>
+              <VCol
+                cols="6"
+              >
+                <div class="d-flex align-center mb-1">
+                  <VIcon
+                    icon="ri-circle-fill"
+                    color="primary"
+                    size="10"
+                    class="me-2"
+                  />
+                  <div
+                    class="text-truncate"
+                    style="max-inline-size: 85px;"
+                  >
+                    In Corso
+                  </div>
+                </div>
+                <h6 class="text-h6 text-medium-emphasis">
+                  {{ props.numInCorso }}
                 </h6>
               </VCol>
             </VRow>
@@ -79,7 +135,22 @@
 <script setup lang="ts">
 import { useTheme } from 'vuetify'
 import { hexToRgb } from '@core/utils/colorConverter'
-import { inject } from 'vue'
+
+
+interface Props {
+  numInCorso: number
+  numInScadenza: number
+  numScaduti: number
+  numCompletati: number
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  numInCorso: 0 ,
+  numInScadenza: 0,
+  numScaduti: 0,
+  numCompletati: 0
+})
+
 
 const vuetifyTheme = useTheme()
 
@@ -89,8 +160,6 @@ const vuetifyTheme = useTheme()
 
   const secondaryTextColor = `rgba(${hexToRgb(currentTheme.value['on-surface'])},${variableTheme.value['medium-emphasis-opacity']})`
   const primaryTextColor = `rgba(${hexToRgb(currentTheme.value['on-surface'])},${variableTheme.value['high-emphasis-opacity']})`
-  const stats = inject('s', {numInCorso: 0, numInScadenza: 0, numScaduti: 0, numCompletati: 0})
-  const numProgettiTotale = computed(() => stats.numInCorso + stats.numInScadenza + stats.numScaduti + stats.numCompletati)
   return {
     chart: {
       sparkline: { enabled: true },
@@ -104,7 +173,7 @@ const vuetifyTheme = useTheme()
     stroke: { width: 0 },
     legend: { show: false },
     dataLabels: { enabled: false },
-    labels: ['Apparel', 'Electronics', 'FMCG', 'Other Sales'],
+    labels: ['In scadenza', 'Scaduti', 'In Corso', 'Completati'],
     states: {
       hover: {
         filter: { type: 'none' },
@@ -129,15 +198,15 @@ const vuetifyTheme = useTheme()
               fontWeight: 500,
               fontSize: '24px',
               color: primaryTextColor,
-              formatter: (value: unknown) => `${value}k`,
+              formatter: (value: unknown) => `${value}`,
             },
             total: {
               show: true,
-              label: 'Weekly Visits',
+              label: 'Tot. Progetti',
               fontSize: '15px',
               color: secondaryTextColor,
 
-              formatter: (value: { globals: { seriesTotals: any[] } }) => `${value.globals.seriesTotals.reduce((total: number, num: number) => total + num)}k`,
+              formatter: (value: number) => `${props.numInScadenza + props.numScaduti + props.numInCorso + props.numCompletati}`,
             },
           },
         },
@@ -148,22 +217,5 @@ const vuetifyTheme = useTheme()
 
 const series = [12, 25, 15, 50]
 
-const salesOverviews = [
-  {
-    product: 'Scaduti',
-    sales: '10',
-  },
-  {
-    product: 'In Corso',
-    sales: '15',
-  },
-  {
-    product: 'In\nscadenza',
-    sales: '18',
-  },
-  {
-    product: 'Completati',
-    sales: '18',
-  },
-]
+
 </script>

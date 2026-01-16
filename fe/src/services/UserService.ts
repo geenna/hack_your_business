@@ -7,6 +7,9 @@ export default {
     async getCollaborators() {
         return api.get('/users/collaborators')
     },
+    async getClienti() {
+        return api.get('/users/clienti')
+    },
     async detailUser(id: string) {
         return api.get(`/user-detail/${id}`)
     },

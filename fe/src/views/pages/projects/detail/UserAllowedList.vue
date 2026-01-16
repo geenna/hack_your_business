@@ -74,7 +74,7 @@ const deleteUser = async (projectId: any, userId: any) => {
 const onConfirmDelete = async (confirmed: boolean) => {
     if (confirmed && userToDelete.value) {
         try {
-            await ProjectService.removeCollaborator(userToDelete.value.projectId, userToDelete.value.userId)
+            await ProjectService.removeRelazioneUtenteProgetto(userToDelete.value.projectId, userToDelete.value.userId)
             refreshProjects()
         } catch (error) {
             console.error("Error removing collaborator:", error)
@@ -116,9 +116,9 @@ const isUserCreateDialogVisible = ref(false)
 
     <ConfirmDialog
       v-model:isDialogVisible="isConfirmDialogVisible"
-      confirmation-question="Sei sicuro di voler rimuovere questo collaboratore?"
+      confirmation-question="Sei sicuro di voler rimuovere questo collegamento?"
       confirm-title="Eliminato!"
-      confirm-msg="Il collaboratore è stato rimosso dal progetto."
+      confirm-msg="la relazione è stata rimossa dal progetto."
       cancel-title="Annullato"
       cancel-msg="Rimozione annullata."
       @confirm="onConfirmDelete"

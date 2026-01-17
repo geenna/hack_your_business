@@ -4,16 +4,27 @@ from .persistence.model import PaymentModel as payment_models
 from .persistence.model import ProjectModel as project_models
 from .persistence.model import BillingAddressModel as billing_models
 from .persistence.model import UserToProjectModel as user_project_models
+from .persistence.model import UserDocumentModel as user_document_models
+from .persistence.model import ProjectDocumentModel as project_document_models
 from .persistence.database import engine
-from .api import auth, users, payments, test_service, projects
+from .api import auth, users, payments, test_service, projects, repository
 
 from fastapi.middleware.cors import CORSMiddleware
 
 user_models.Base.metadata.create_all(bind=engine)
 billing_models.Base.metadata.create_all(bind=engine)
 user_project_models.Base.metadata.create_all(bind=engine)
+user_document_models.Base.metadata.create_all(bind=engine)
+project_document_models.Base.metadata.create_all(bind=engine)
 
-app = FastAPI()
+app = FastAPI(
+    title="Hack Your Business API",
+    description="API for Hack Your Business application",
+    version="1.0.0",
+    openapi_url="/api/openapi.json",
+    docs_url="/api/docs",
+    redoc_url="/api/redoc"
+)
 
 app.add_middleware(
     CORSMiddleware,
@@ -29,6 +40,7 @@ api_router.include_router(users.router)
 api_router.include_router(payments.router)
 api_router.include_router(projects.router)
 api_router.include_router(test_service.router)
+api_router.include_router(repository.router)
 
 app.include_router(api_router)
 

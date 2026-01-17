@@ -51,6 +51,14 @@ class TokenData(BaseModel):
 class UserLogin(BaseModel):
     username: str
     password: str
+    
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "username": "user@example.com",
+                "password": "your_password"
+            }
+        }
 
 
 from .BillingAddressSchema import BillingAddressSchema

@@ -7,7 +7,7 @@ import UserTabSecurity from '@/views/pages/users/components/UserTabSecurity.vue'
 import UserTabBillingsPlans from '@/views/pages/users/components/UserTabBillingsPlans.vue'
 import UserTabNotifications from '@/views/pages/users/components/UserTabNotifications.vue'
 import UserTabProjects from '@/views/pages/users/components/UserTabProjects.vue'
-
+import UserTabDocuments from '@/views/pages/users/components/UserTabDocuments.vue'
 import type { UserDetail } from '@/types/UserProperties'
 
 const selectedUserID = inject('selectedUserID') as Ref<string>
@@ -37,6 +37,9 @@ const tabs = [
   {
     icon: 'ri-link-m',
     title: 'Pagamenti',
+  },{
+    icon: 'ri-link-m',
+    title: 'Documenti',
   },
 ]
 
@@ -107,9 +110,13 @@ watch(selectedUserID, async (newId) => {
           <UserTabNotifications />
         </VWindowItem>
 
-        <VWindowItem>
-          <UserTabBillingsPlans :user-data="userData" />
-        </VWindowItem>
+          <VWindowItem>
+            <UserTabBillingsPlans :user-data="userData" />
+          </VWindowItem>
+
+          <VWindowItem>
+            <UserTabDocuments />
+          </VWindowItem>  
       </VWindow>
     </VCol>
   </VRow>

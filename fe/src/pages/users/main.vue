@@ -3,14 +3,23 @@ import UserList from '@/views/pages/users/UserList.vue'
 import UserDetail from '@/views/pages/users/UserDetail.vue'
 import { UserProperties } from '@/types/UserProperties'
 import UserService from '@/services/UserService'
+import RepositoryService from '@/services/RepositoryService'
+import { DocumentProperties } from '@/types/DocumentProperties'
 const currentTab = ref("lista-utenti")
 
 const selectedUserID = ref()
 provide('selectedUserID', selectedUserID)
 
-const onDetailUser = (userID: string) => {
+const documents = ref<DocumentProperties[]>([])
+provide('documents', documents)
+
+const onDetailUser = async (userID: string) => {
     currentTab.value = 'dettaglio-utente'
     selectedUserID.value = userID
+    //TODO gestire errore di fetch
+    const response = await RepositoryService.getAllUserDocuments(userID)
+    documents.value = response.data as DocumentProperties[]
+    await getUser(userID)
 }
 
 onMounted(() => {

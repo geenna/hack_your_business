@@ -25,7 +25,7 @@ async def add_file(
     db: Session = Depends(auth.get_db),
     prefix: str = Query(..., alias="type", description="The category or type of the file (userFile or projectFile)."),
     external_id: str = Query(..., alias="userId", description="The unique identifier of the owner of the file."),
-    user: models.User = Depends(allow_user_only)
+    user: models.User = Depends(allow_admin_only)
 ) -> Dict[str, Any]:
    
     if not files:
@@ -138,7 +138,7 @@ def get_file(
     file_id: str = Query(..., alias="fileId", description="The ID of the document record (from userDocuments or projectDocuments table)."),
     prefix: str = Query(..., alias="type", description="The category or type of the file (user or project)."),
     db: Session = Depends(auth.get_db),
-    user: models.User = Depends(allow_user_only)
+    user: models.User = Depends(allow_admin_only)
 ):
    
     if not file_id:
@@ -233,7 +233,7 @@ def remove_file(
     file_id: str = Query(..., alias="fileId", description="The ID of the document record (from userDocuments or projectDocuments table)."),
     prefix: str = Query(..., alias="type", description="The category or type of the file (user or project)."),
     db: Session = Depends(auth.get_db),
-    user: models.User = Depends(allow_user_only)
+    user: models.User = Depends(allow_admin_only)
 ) -> Dict[str, str]:
   
     if not file_id:

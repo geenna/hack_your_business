@@ -8,6 +8,7 @@ import UserAllowedList from './UserAllowedList.vue'
 import AggiungiCollaboratoreDialog from './AggiungiCollaboratoreDialog.vue'
 import AggiungiClienteDialog from './AggiungiClienteDialog.vue'
 import AggiungiDocumentoDialog from './AggiungiDocumentoDialog.vue'
+import DocumentListTable from '../../DocumentListTable.vue'
 
 const project :Ref<ProjectFull> = inject('projectSelected') as Ref<ProjectFull>  
 
@@ -98,22 +99,8 @@ const tabs = [
             </VCardText>
           </VCard>
 
+          <DocumentListTable class="mt-4"/>
 
-
-          <VCard class="mt-6" title="Documenti">
-            <template #append>
-              <VBtn
-                size="small"
-                prepend-icon="ri-add-line"
-                @click="isAddDocumentDialogOpen = true"
-              >
-                Aggiungi documento
-              </VBtn>
-            </template>
-            <VCardText>
-              {{ project.descrizioneProgetto }}
-            </VCardText>
-          </VCard>
         </VWindowItem>
       </VWindow>
     </VCol>

@@ -1,15 +1,9 @@
 <script setup lang="ts">
     import { useTheme } from 'vuetify'
-    import avatar2 from '@images/avatars/avatar-2.png'
-    import ProjectService from '@/services/ProjectService'
-    import { UserDetail } from '@/types/UserProperties'
-    import { ProjectWithUserRole } from '@/types/ProjectWithUserRole'
     import { DocumentProperties } from '@/types/DocumentProperties'
     const { name } = useTheme()
-    
-    const isLoading = ref(false)
-    
-  
+ 
+     
     const documents = inject('documents') as Ref<DocumentProperties[]>
     
     const headers = [
@@ -38,7 +32,11 @@
     ]
     
     const search = ref('')
-    
+
+    const uploadDocument = inject('uploadDocumentHandler') as () => Promise<void>
+    const deleteDocument = inject('deleteDocumentHandler') as (documentId:string) => void
+    const downloadDocument = inject('downloadDocumentHandler') as (documentId:string) => void
+
 
     </script>
     
@@ -47,12 +45,14 @@
         <VCol cols="12">
           <VCard title="Documenti">
             <template #append>
-              <VTextField
-                v-model="search"
-                placeholder="Cerca File"
-                density="compact"
-                style="inline-size: 10rem;"
-              />
+              <VBtn
+                size="small"
+                prepend-icon="ri-add-line"
+                @click="uploadDocument"
+              >
+                Aggiungi documento
+              </VBtn>
+
             </template>
             
             <VDataTable
@@ -70,6 +70,7 @@
                 <IconBtn size="small" color="error" @click="deleteDocument(item.id)">
                     <VIcon icon="ri-delete-bin-line" />
                 </IconBtn>
+                
                 <IconBtn size="small" color="primary" @click="downloadDocument(item.id)">
                     <VIcon icon="ri-download-line" />
                 </IconBtn>

@@ -7,4 +7,4 @@ build
 coverage
 *.log
 __pycache__
-repository/**
+repository/*

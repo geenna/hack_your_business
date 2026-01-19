@@ -12,7 +12,7 @@ interface Props {
 }
 
 type CodeProp = Record<CodeLanguages, string>
-
+const COOKIE_MAX_AGE_1_YEAR = 60 * 60 * 24 * 365
 const props = withDefaults(defineProps<Props>(), {
   codeLanguage: 'markup',
   noPadding: false,

@@ -37,7 +37,6 @@
     const deleteDocument = inject('deleteDocumentHandler') as (documentId:string) => void
     const downloadDocument = inject('downloadDocumentHandler') as (documentId:string) => void
 
-
     </script>
     
     <template>

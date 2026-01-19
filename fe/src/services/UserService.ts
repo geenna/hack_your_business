@@ -17,7 +17,6 @@ export default {
         return api.post('/users', user)
     },
     async suspendUser(id: string) {
-        debugger;
         return api.put(`/users/${id}/suspend`)
     },
     async activateUser(id: string) {

@@ -6,6 +6,7 @@ from datetime import datetime, timezone
 
 from fastapi import APIRouter, UploadFile, File, HTTPException, Query, Depends
 from fastapi.responses import StreamingResponse
+from pydantic import FilePath
 from sqlalchemy.orm import Session
 from sqlalchemy import select
 from .. import auth
@@ -138,52 +139,35 @@ def get_file(
     file_id: str = Query(..., alias="fileId", description="The ID of the document record (from userDocuments or projectDocuments table)."),
     prefix: str = Query(..., alias="type", description="The category or type of the file (user or project)."),
     db: Session = Depends(auth.get_db),
-    user: models.User = Depends(allow_admin_only)
-):
+    user: models.User = Depends(allow_admin_only)):
    
-    if not file_id:
-        raise HTTPException(status_code=400, detail="File ID cannot be empty.")
-
-    # Validate prefix
-    if prefix not in ["user", "project"]:
-        raise HTTPException(status_code=400, detail=f"Unsupported prefix '{prefix}'.")
-
-    # Find document record in database by ID
-    if prefix == "user":
-        stmt = select(user_document_models.UserDocument).where(
-            user_document_models.UserDocument.id == file_id,
-            user_document_models.UserDocument.deletedAt.is_(None)
-        )
-        document = db.execute(stmt).scalars().first()
-    elif prefix == "project":
-        stmt = select(project_document_models.ProjectDocument).where(
-            project_document_models.ProjectDocument.id == file_id,
-            project_document_models.ProjectDocument.deletedAt.is_(None)
-        )
-        document = db.execute(stmt).scalars().first()
-
-    if not document:
-        raise HTTPException(status_code=404, detail=f"File with id '{file_id}' not found in '{prefix}' documents table or already deleted.")
-
-    # Get external_id based on document type
-    external_id = document.userId if prefix == "user" else document.projectId
-
-    # Construct file path
-    file_path: Path = BASE_STORAGE_PATH / prefix / external_id / document.fileNameDisk
-
-    if not file_path.is_file():
-        raise HTTPException(status_code=404, detail=f"File with id '{file_id}' not found in filesystem.")
+    
+    fileData = __get_file_content(file_id=file_id, prefix=prefix, db=db)
 
     # Open file as stream and return with StreamingResponse
     def iterfile():
-        with open(file_path, "rb") as file:
+        with open(fileData["file_path"], "rb") as file:
             yield from file
 
     return StreamingResponse(
         iterfile(),
-        media_type=document.contentType or "application/octet-stream",
-        headers={"Content-Disposition": f'inline; filename="{document.fileNameOriginal}"'}
+        media_type=fileData["document"].contentType or "application/octet-stream",
+        headers={"Content-Disposition": f'inline; filename="{fileData["document"].fileNameOriginal}"'}
     )
+
+
+@router.get("/get-file-presigned")
+def get_file(
+    file_id: str = Query(..., alias="fileId", description="The ID of the document record (from userDocuments or projectDocuments table)."),
+    prefix: str = Query(..., alias="type", description="The category or type of the file (user or project)."),
+    db: Session = Depends(auth.get_db),
+    user: models.User = Depends(allow_admin_only)):
+   
+    
+    fileData = __get_file_content(file_id=file_id, prefix=prefix, db=db)
+    print("TODO")
+
+
 
 @router.get("/get-all-files", response_model=List[Dict[str, Any]])
 def get_all_files(
@@ -284,3 +268,44 @@ def remove_file(
         raise HTTPException(status_code=500, detail=f"Failed to delete record from database: {e}")
 
     return {"message": f"File with id '{file_id}' removed successfully."}
+
+
+
+def __get_file_content(file_id: str,
+    prefix: str,
+    db: Session = Depends(auth.get_db)) -> dict:
+
+    if not file_id:
+        raise HTTPException(status_code=400, detail="File ID cannot be empty.")
+
+    # Validate prefix
+    if prefix not in ["user", "project"]:
+        raise HTTPException(status_code=400, detail=f"Unsupported prefix '{prefix}'.")
+
+    # Find document record in database by ID
+    if prefix == "user":
+        stmt = select(user_document_models.UserDocument).where(
+            user_document_models.UserDocument.id == file_id,
+            user_document_models.UserDocument.deletedAt.is_(None)
+        )
+        document = db.execute(stmt).scalars().first()
+    elif prefix == "project":
+        stmt = select(project_document_models.ProjectDocument).where(
+            project_document_models.ProjectDocument.id == file_id,
+            project_document_models.ProjectDocument.deletedAt.is_(None)
+        )
+        document = db.execute(stmt).scalars().first()
+
+    if not document:
+        raise HTTPException(status_code=404, detail=f"File with id '{file_id}' not found in '{prefix}' documents table or already deleted.")
+
+    # Get external_id based on document type
+    external_id = document.userId if prefix == "user" else document.projectId
+
+    # Construct file path
+    file_path: Path = BASE_STORAGE_PATH / prefix / external_id / document.fileNameDisk
+
+    if not file_path.is_file():
+        raise HTTPException(status_code=404, detail=f"File with id '{file_id}' not found in filesystem.")
+
+    return {"document": document, "file_path": file_path}

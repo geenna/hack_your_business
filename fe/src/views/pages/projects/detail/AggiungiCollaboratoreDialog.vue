@@ -40,7 +40,6 @@ const onSave = async () => {
 
     isSaving.value = true
     try {
-      debugger;
         await ProjectService.addRelazioneUtenteProgetto(project.value.id, selectedUserIds.value)
         emit('refresh')
         isVisible.value = false

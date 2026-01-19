@@ -96,7 +96,6 @@ provide('deleteDocumentHandler', deleteDocument)
 const downloadDocument = async (documentId : string) => {
     
   const res = await RepositoryService.downloadDocument('project', documentId)
-  debugger;
   const contentType = res.headers["content-type"] || "application/octet-stream"
   const cd = res.headers["content-disposition"]
   const filename = getFilenameFromContentDisposition(cd) || `document-${documentId}`

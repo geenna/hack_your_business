@@ -9,7 +9,7 @@ interface Props {
 
 interface Emits {
   (e: 'update:isDialogVisible', val: boolean): void
-  (e: 'submit', data: { date: string; value: number; status: string; tipoPagamento: string }): void
+  (e: 'submit', data: { date: any; value: number; status: string; tipoPagamento: string }): void
 }
 
 const props = defineProps<Props>()

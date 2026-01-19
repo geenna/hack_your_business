@@ -30,4 +30,4 @@ export default [
     icon: { icon: 'ri-file-text-line' },
     target: '_blank',
   }
-]
+] as any

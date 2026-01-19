@@ -45,12 +45,20 @@ export const canNavigate = (to: RouteLocationNormalized) => {
 
   // Get the most specific route (last one in the matched array)
   const targetRoute = to.matched[to.matched.length - 1]
+  const targetAction = typeof targetRoute?.meta?.action === 'string' ? targetRoute.meta.action : undefined
+  const targetSubject = typeof targetRoute?.meta?.subject === 'string' ? targetRoute.meta.subject : undefined
 
   // If the target route has specific permissions, check those first
-  if (targetRoute?.meta?.action && targetRoute?.meta?.subject)
-    return ability.can(targetRoute.meta.action, targetRoute.meta.subject)
+  if (targetAction && targetSubject)
+    return ability.can(targetAction, targetSubject)
 
   // If no specific permissions, fall back to checking if any parent route allows access
-  // @ts-expect-error We should allow passing string | undefined to can because for admin ability we omit defining action & subject
-  return to.matched.some(route => ability.can(route.meta.action, route.meta.subject))
+  const matchedWithPermissions = to.matched.filter(route => {
+    return typeof route.meta?.action === 'string' && typeof route.meta?.subject === 'string'
+  })
+
+  if (!matchedWithPermissions.length)
+    return true
+
+  return matchedWithPermissions.some(route => ability.can(route.meta.action as string, route.meta.subject as string))
 }

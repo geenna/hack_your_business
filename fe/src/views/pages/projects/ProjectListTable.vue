@@ -60,7 +60,7 @@ const projectTableHeaders = [
     title: 'Costo (€)',
     key: 'costo',
   },
-]
+] as any
 
 const search = ref('')
 

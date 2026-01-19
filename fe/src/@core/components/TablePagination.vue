@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { paginationMeta } from '@core/utils/formatters'
+
 interface Props {
   page: number
   itemsPerPage: number

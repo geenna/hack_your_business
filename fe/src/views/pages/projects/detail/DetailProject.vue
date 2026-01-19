@@ -6,7 +6,7 @@
         </VCol>
 
         <VCol style="min-width: 400px; max-width: 400px; flex: 0 0 400px;">
-            <AvanzamentoRadialGraph/>
+            <AvanzamentoRadialGraph :avanzamento="projectSelected?.avanzamento ?? 0" />
         </VCol>
     </VRow>
     
@@ -24,7 +24,8 @@
 <script setup lang="ts">
 import { inject } from 'vue'
 import AvanzamentoRadialGraph from './AvanzamentoRadialGraph.vue'
-const projectSelected = inject('projectSelected')
+import { ProjectFull } from '@/types/UserToProjectSchema';
+const projectSelected = inject('projectSelected') as Ref<ProjectFull>
 
 
 </script>

@@ -2,7 +2,7 @@ import { setupLayouts } from 'virtual:meta-layouts'
 import { createRouter, createWebHistory } from 'vue-router/auto'
 import { redirects, routes } from './named'
 
-function recursiveLayouts(route) {
+function recursiveLayouts(route : any) {
   if (route.children) {
     for (let i = 0; i < route.children.length; i++)
       route.children[i] = recursiveLayouts(route.children[i])
@@ -32,6 +32,6 @@ const router = createRouter({
 
 //setupGuards(router)
 export { router }
-export default function (app) {
+export default function (app:any) {
   app.use(router)
 }

@@ -1,4 +1,6 @@
 <script setup>
+import { paginationMeta } from '@core/utils/formatters'
+
 const searchQuery = ref('')
 const selectedStatus = ref()
 

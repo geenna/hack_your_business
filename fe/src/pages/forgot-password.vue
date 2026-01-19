@@ -118,7 +118,7 @@ definePage({
               <VCol cols="12">
                 <RouterLink
                   class="d-flex align-center justify-center"
-                  :to="{ name: 'pages-authentication-login-v2' }"
+                  :to="{ name: 'login' }"
                 >
                   <VIcon
                     icon="ri-arrow-left-s-line"

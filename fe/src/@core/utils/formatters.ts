@@ -46,3 +46,13 @@ export const formatDateToMonthShort = (value: string, toTimeForCurrentDay = true
 }
 
 export const prefixWithPlus = (value: number) => value > 0 ? `+${value}` : value
+
+export const paginationMeta = (
+  options: { page: number; itemsPerPage: number },
+  totalItems: number,
+) => {
+  const start = totalItems === 0 ? 0 : (options.page - 1) * options.itemsPerPage + 1
+  const end = Math.min(options.page * options.itemsPerPage, totalItems)
+
+  return `${start}-${end} of ${totalItems}`
+}

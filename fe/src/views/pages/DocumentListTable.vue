@@ -29,7 +29,7 @@
         width: '150px',
         align: 'center',
       },
-    ]
+    ] as any
     
     const search = ref('')
 

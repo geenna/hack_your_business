@@ -2,7 +2,7 @@
 import Shepherd from 'shepherd.js'
 import { withQuery } from 'ufo'
 import type { RouteLocationRaw } from 'vue-router'
-import type { SearchResults } from '@db/app-bar-search/types'
+//import type { SearchResults } from '@db/app-bar-search/types'
 import { useConfigStore } from '@core/stores/config'
 
 interface Suggestion {
@@ -88,12 +88,12 @@ const noDataSuggestions: Suggestion[] = [
 const searchQuery = ref('')
 
 const router = useRouter()
-const searchResult = ref<SearchResults[]>([])
+const searchResult = ref<any[]>([])
 
 const fetchResults = async () => {
-  const { data } = await useApi<any>(withQuery('/app-bar/search', { q: searchQuery.value }))
+  //const { data } = await useApi<any>(withQuery('/app-bar/search', { q: searchQuery.value }))
 
-  searchResult.value = data.value
+  //searchResult.value = data.value
 }
 
 watch(searchQuery, fetchResults)
@@ -193,7 +193,7 @@ const LazyAppBarSearch = defineAsyncComponent(() => import('@core/components/App
       </div>
     </template>
 
-    <!-- search result -->
+    <!-- 
     <template #searchResult="{ item }">
       <VListSubheader class="text-disabled custom-letter-spacing font-weight-regular ps-4">
         {{ item.title }}
@@ -222,6 +222,7 @@ const LazyAppBarSearch = defineAsyncComponent(() => import('@core/components/App
         </VListItemTitle>
       </VListItem>
     </template>
+    search result -->
   </LazyAppBarSearch>
 </template>
 

@@ -18,6 +18,19 @@ export default [
     title: 'CoWork',
     target: '_blank',
     icon: { icon: 'ri-file-text-line' },
+    children: [
+      {
+        title: 'Servizi',
+         to: { name: 'cowork-servizi' },
+      },
+      {
+        title: 'Prenotazioni',
+        target: '_blank',
+      },{
+        title: 'Disponibilità',
+        target: '_blank',
+      }
+    ],
   },
   {
     title: 'Pagamenti',

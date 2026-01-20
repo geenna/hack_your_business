@@ -6,8 +6,7 @@ const emit = defineEmits(['onDetailUser'])
 // 👉 Store
 const searchQuery = ref('')
 const selectedRole = ref()
-const selectedPlan = ref()
-const selectedStatus = ref()
+
 
 // Data table options
 const itemsPerPage = ref(10)
@@ -61,7 +60,7 @@ const resolveUserRoleVariant = (role: string) => {
 
 const resolveUserStatusVariant = (role: string) => {
   const roleLowerCase = role.toLowerCase()
-  
+
   if (roleLowerCase === 'disattivo')
     return 'error'
 
@@ -79,14 +78,14 @@ const addNewUser = async () => {
 
 // 👉 Delete user
 const deleteUser = async (id: number) => {
- 
+
 }
 
 const users = inject<Ref<UserProperties[]>>('users')
 
 const filteredUsers = computed(() => {
   if (!users || !users.value) return []
-  
+
   if (!selectedRole.value)
     return users.value
 
@@ -165,7 +164,7 @@ const isUserCreateDialogVisible = ref(false)
       class="mb-6"
     >
       <VCardText>
-      
+
         <VRow>
           <!-- 👉 Select Role -->
           <VCol
@@ -203,15 +202,15 @@ const isUserCreateDialogVisible = ref(false)
           > <VTextField
             v-model="searchQuery"
             placeholder="Search User"
-           
+
           />
           <!-- 👉 Add user button -->
         </VCol>
-       
+
           <VCol
             cols="12"
             sm="4"
-          >  
+          >
           <VBtn class = "mt-1"  @click="isUserCreateDialogVisible = true">
             Aggiungi Utente
           </VBtn></VCol>
@@ -220,7 +219,7 @@ const isUserCreateDialogVisible = ref(false)
 
       <VDivider />
 
-      
+
       <!-- SECTION datatable -->
       <VDataTable
         v-model:items-per-page="itemsPerPage"
@@ -266,7 +265,7 @@ const isUserCreateDialogVisible = ref(false)
 
           <IconBtn
             size="small"
-            
+
           >
             <VIcon icon="ri-eye-line" @click="emit('onDetailUser', item.id)"/>
           </IconBtn>

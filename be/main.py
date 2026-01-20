@@ -6,8 +6,12 @@ from .persistence.model import BillingAddressModel as billing_models
 from .persistence.model import UserToProjectModel as user_project_models
 from .persistence.model import UserDocumentModel as user_document_models
 from .persistence.model import ProjectDocumentModel as project_document_models
+from .persistence.model import PrenotazioniModel as prenotazioni_models
+from .persistence.model import PrenotazioneToServiziModel as prenotazione_to_servizi_models
+from .persistence.model import ServiziModel as servizi_models
+from .persistence.model import DisponibilitaModel as disponibilita_models
 from .persistence.database import engine
-from .api import auth, users, payments, test_service, projects, repository
+from .api import auth, cowork, users, payments, test_service, projects, repository
 
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -16,6 +20,11 @@ billing_models.Base.metadata.create_all(bind=engine)
 user_project_models.Base.metadata.create_all(bind=engine)
 user_document_models.Base.metadata.create_all(bind=engine)
 project_document_models.Base.metadata.create_all(bind=engine)
+prenotazioni_models.Base.metadata.create_all(bind=engine)
+prenotazione_to_servizi_models.Base.metadata.create_all(bind=engine)
+servizi_models.Base.metadata.create_all(bind=engine)
+disponibilita_models.Base.metadata.create_all(bind=engine)
+
 
 app = FastAPI(
     title="Hack Your Business API",
@@ -42,6 +51,7 @@ api_router.include_router(payments.router)
 api_router.include_router(projects.router)
 api_router.include_router(test_service.router)
 api_router.include_router(repository.router)
+api_router.include_router(cowork.router)
 
 app.include_router(api_router)
 

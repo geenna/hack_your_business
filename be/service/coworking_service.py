@@ -38,9 +38,10 @@ def getDisponibilitaCoWorkService(db: Session, dal: date, al : date , tipologia:
     stmt = select(Disponibilita, Servizi)\
             .join(Servizi, Disponibilita.idServizio == Servizi.id)\
             .where(Disponibilita.date >= dal).where(Disponibilita.date <= al)
+            
     if(tipologia != 'ALL'):
-        stmt = stmt.where(Servizi.key == tipologia)
-
+        stmt = stmt.where(Servizi.id == tipologia)
+    
     results = db.execute(stmt).all()
     return results
 

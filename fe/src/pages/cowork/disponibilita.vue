@@ -41,7 +41,9 @@
               v-model="tipologiaSelezionata"
               label="Seleziona Tipologia"
               placeholder="Seleziona Tipologia"
-              :items="tipologia"
+              :items="servizi"
+              item-title="nome"
+              item-value="id"
             />
           </VCol>
 
@@ -70,7 +72,7 @@
       <template #item.dispMattina="{ item }">
           <span>- Totale: {{ item.numMattina }}</span><br>
           <span>- Residua: {{ item.numMattina - item.numPrenotazioniMattina }}</span><br>
-          <span>- Num. Prenotazioni: {{ item.numPrenotazioniMattina  }}</span>
+          <span>- Num Prenotazioni: {{ item.numPrenotazioniMattina  }}</span>
       </template>
 
       <template #item.dispPomeriggio="{ item }">
@@ -120,7 +122,9 @@ import type { DisponibilitaCompletaType } from '@/types/DisponibilitaCompletaTyp
 
 const isAddDisponibilitaDialogVisible = ref(false);
 const onSubmit = (data: {reload:boolean }) => {
-  loadDisponibilita();
+  if(data.reload)
+    loadDisponibilita();
+
 };
 const servizi:Ref<ServiziModel[]> = ref<ServiziModel[]>([])
 provide('serviziPresenti', servizi);
@@ -129,7 +133,6 @@ const items:Ref<DisponibilitaCompletaType[]> = ref<DisponibilitaCompletaType[]>(
 
 onMounted(() => {
   loadServiziPresenti()
-  loadDisponibilita()
 });
 
 const periodoSelezionato = ref('30_DAYS')
@@ -166,6 +169,12 @@ const loadServiziPresenti = async () => {
   try {
       const response = await CoWorkingService.getServizi()
       servizi.value = response.data
+      if(servizi.value.length > 0 ){
+        let coWorkIndex = servizi.value.findIndex(s => s.key === "COWORK_BASE")
+        tipologiaSelezionata.value = servizi.value[coWorkIndex].id
+        loadDisponibilita()
+      }
+
     } catch (error) {
       console.error('Errore caricamento servizi:', error)
       servizi.value = []

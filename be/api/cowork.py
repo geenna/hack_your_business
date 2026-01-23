@@ -22,7 +22,7 @@ router = APIRouter(
 
 @router.get("/servizi", response_model=List[cowork_schema.ServiziCoWorkSchema])
 def getServiziCoWork( db: Session = Depends(auth.get_db), user: models.User = Depends(auth.get_current_user)):
-    stmt = select(Servizi)
+    stmt = select(Servizi).order_by(Servizi.nome)
     results = db.execute(stmt).scalars().all()
     return results
 

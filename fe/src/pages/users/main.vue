@@ -29,7 +29,7 @@ const uploadDocument = async () => {
         const input = document.createElement('input')
         input.type = 'file'
         input.accept = '*' // Optionally restrict file types
-        
+
         input.onchange = async () => {
             if (!input.files || !input.files.length) {
                 reject(new Error('No file selected'))
@@ -40,13 +40,13 @@ const uploadDocument = async () => {
             // Prepare payload for the backend
             const formData = new FormData()
             formData.append('files', file)
-           
+
 
             try {
                 // Call your backend API to upload the file
                 // Adjust the endpoint and parameters according to your API
                 const response = await RepositoryService.uploadUserDocument('user', selectedUserID.value, formData)
-                
+
                 loadDocuments()
 
                 resolve()
@@ -74,10 +74,10 @@ const deleteDocument = async (documentId : string) => {
             } catch (error) {
                 console.error('Failed to delete document:', error)
             }
-        }    
-        
+        }
+
     } catch (error) {
-        
+
     }
 }
 provide('deleteDocumentHandler', deleteDocument)
@@ -85,21 +85,21 @@ const onDetailUser = async (userID: string) => {
     currentTab.value = 'dettaglio-utente'
     selectedUserID.value = userID
     loadDocuments()
-    
+
 }
 const downloadDocument = async (documentId : string) => {
-    
+
     const res = await RepositoryService.downloadDocument('user', documentId)
     const contentType = res.headers["content-type"] || "application/octet-stream"
     const cd = res.headers["content-disposition"]
     const filename = getFilenameFromContentDisposition(cd) || `document-${documentId}`
-  
+
     const blob = new Blob([res.data], { type: contentType })
     const url = URL.createObjectURL(blob)
-  
+
     // Apri in nuova tab
     const win = window.open(url, "_blank", "noopener,noreferrer")
-  
+
     // Opzionale: set title (funziona su molti browser)
     if (win) {
       win.onload = () => {
@@ -108,14 +108,14 @@ const downloadDocument = async (documentId : string) => {
         } catch {}
       }
     }
-  
+
     // NON revocare subito: la tab lo usa
     setTimeout(() => URL.revokeObjectURL(url), 60_000)
   }
   provide('downloadDocumentHandler', downloadDocument)
-onMounted(() => {
-    getUser()
-})
+  onMounted(() => {
+      getUser()
+  })
 
 
 

@@ -94,7 +94,7 @@ const headers = [
   { title: 'Costo Intero (€)', key: 'costoIntero', width: '200', align:'end' },
   { title: 'Costo Ridotto (€)', key: 'costoRidotto', width: '200', align:'end' },
   { title: 'Azioni', key: 'azioni', width: '150', align: 'center' },
-]
+] as any
 const servizi:Ref<ServiziModel[]> = ref<ServiziModel[]>([])
 
 onMounted(() => {

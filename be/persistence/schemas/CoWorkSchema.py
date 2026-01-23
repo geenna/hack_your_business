@@ -23,3 +23,20 @@ class DisponibilitaCoWorkSchema(BaseModel):
         from_attributes = True
 
    
+class NewDisponibilitaCoWorkSchema(BaseModel):
+    idServizio: str
+    date: list[date]
+    numMattina: int
+    numPomeriggio: int
+    giorniSettimana: list[int]
+
+    class Config:
+        from_attributes = True
+
+class DisponibilitaConPrenotazioneSchema(DisponibilitaCoWorkSchema):
+    numPrenotazioniMattina: int = 0
+    numPrenotazioniPomeriggio: int = 0
+    nomeServizio: str
+
+    class Config:
+        from_attributes = True

@@ -258,6 +258,7 @@ const isUserCreateDialogVisible = ref(false)
         <template #item.actions="{ item }">
           <IconBtn
             size="small"
+            color="error"
             @click=""
           >
             <VIcon icon="ri-delete-bin-7-line" />

@@ -22,12 +22,12 @@ export default [
       {
         title: 'Servizi',
          to: { name: 'cowork-servizi' },
+      },{
+        title: 'Disponibilità',
+         to: { name: 'cowork-disponibilita' },
       },
       {
         title: 'Prenotazioni',
-        target: '_blank',
-      },{
-        title: 'Disponibilità',
         target: '_blank',
       }
     ],

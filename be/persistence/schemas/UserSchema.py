@@ -1,10 +1,25 @@
-from pydantic import BaseModel, EmailStr
-from typing import List, Optional
+from pydantic import BaseModel, EmailStr, field_validator
+from typing import List, Optional, Union
 
 
 class Role(BaseModel):
     action: str
     subject: str
+
+
+def _roles_to_privilegi(roles: Optional[List[Union[Role, dict]]]) -> List[str]:
+    if not roles:
+        return []
+    privilegi: List[str] = []
+    for role in roles:
+        if isinstance(role, dict):
+            subject = role.get("subject")
+        else:
+            subject = getattr(role, "subject", None)
+        if subject:
+            privilegi.append(subject)
+    return privilegi
+
 
 class UserBase(BaseModel):
     email: EmailStr
@@ -24,16 +39,28 @@ class UserBase(BaseModel):
     user_status: Optional[str] = "ATTIVO" # Account Status
     avatar: Optional[str] = None
 
+
+class UserWithPrivilegi(UserBase):
+    privilegi: List[str] = []
+
+    @field_validator("privilegi", mode="before")
+    @classmethod
+    def compute_privilegi(cls, v, info):
+        if v is not None and v != []:
+            return v
+        return _roles_to_privilegi(info.data.get("roles"))
+    
+
 class UserCreate(UserBase):
     password: str
-
+    privilegi: Optional[List[str]] = []
 class UserPasswordChange(BaseModel):
     password: str
 
 class UserUpdate(UserBase):
     password: Optional[str] = None
-
-class UserResponse(UserBase):
+    privilegi: Optional[List[str]] = []
+class UserResponse(UserWithPrivilegi):
     id: str
 
     class Config:
@@ -63,6 +90,6 @@ class UserLogin(BaseModel):
 
 from .BillingAddressSchema import BillingAddressSchema
 
-class UserDetailResponse(UserBase):
+class UserDetailResponse(UserWithPrivilegi):
     id: str
     billing_address: Optional[BillingAddressSchema] = None

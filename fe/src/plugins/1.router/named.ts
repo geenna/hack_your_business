@@ -7,31 +7,29 @@ export const redirects = [
     {
         path: '/',
         name: 'index',
-        redirect: (to: any) => {
+        /*redirect: (to: any) => {
             // TODO: Get type from backend
             const userData = useCookie<any>('userData')
             const userRole = userData.value?.userType
             if (userRole === 'admin')
                 return { name: 'dashboard' }
-            /*if (userRole === 'client')
-                return { name: 'access-control' }*/
+
 
             return { name: 'login', query: to.query }
-        },
+        },*/
     }, {
         path: '/root',
         name: 'root',
-        redirect: (to: any) => {
+        /*redirect: (to: any) => {
 
             const userData = useCookie<any>('userData')
             const userRole = userData.value?.userType
             if (userRole === 'admin')
                 return { name: 'dashboard' }
-            /*if (userRole === 'client')
-                return { name: 'access-control' }*/
+
 
             return { name: 'login', query: to.query }
-        },
+        },*/
     },
     /*{
       path: '/pages/user-profile',

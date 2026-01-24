@@ -9,10 +9,10 @@ from ..persistence.model.DisponibilitaModel import Disponibilita
 from ..persistence.schemas import UserSchema as user_schema
 from ..persistence.schemas import CoWorkSchema as cowork_schema
 from ..service.coworking_service import *
-from datetime import date, timedelta
+from datetime import date, timedelta, datetime
 # Role Based Endpoints
 allow_admin_only = auth.RoleChecker(["all"])
-allow_user_only = auth.RoleChecker(["user"])
+allowed_cowork_roles = auth.RoleChecker(["all", "CoWorking"])
 
 
 router = APIRouter(
@@ -21,7 +21,7 @@ router = APIRouter(
 )
 
 @router.get("/servizi", response_model=List[cowork_schema.ServiziCoWorkSchema])
-def getServiziCoWork( db: Session = Depends(auth.get_db), user: models.User = Depends(auth.get_current_user)):
+def getServiziCoWork( db: Session = Depends(auth.get_db), user: models.User = Depends(allowed_cowork_roles)):
     stmt = select(Servizi).order_by(Servizi.nome)
     results = db.execute(stmt).scalars().all()
     return results
@@ -120,7 +120,7 @@ def getDisponibilitaCoWork(
     periodo:str,
     tipologia:str,
     db: Session = Depends(auth.get_db),
-    user: models.User = Depends(auth.get_current_user)
+    user: models.User = Depends(allowed_cowork_roles)
 ):
     
     dal = date.today()
@@ -155,8 +155,19 @@ def getDisponibilitaCoWork(
             numPomeriggio=disponibilitaModel.numPomeriggio,
             nomeServizio=servizioModel.nome,
             numPrenotazioniMattina=0, 
-            numPrenotazioniPomeriggio=0 
+            numPrenotazioniPomeriggio=0,
         ))
 
     
     return retcode      
+
+@router.delete("/disponibilita/{idServizio}/{data}", status_code=200)
+def eliminaDisponibilita(
+    idServizio: str,
+    data: str,
+    db: Session = Depends(auth.get_db),
+    user: models.User = Depends(allow_admin_only)):
+
+    data_date = datetime.strptime(data, "%Y-%m-%d").date()
+    cancella_displibilita_cowork(idServizio, db, data_date, None)
+    return True

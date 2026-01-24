@@ -15,7 +15,7 @@ from ..persistence.model import ProjectDocumentModel as project_document_models
 from ..persistence.model import UserModel as models
 router = APIRouter(prefix="/repository", tags=["repository"])
 allow_admin_only = auth.RoleChecker(["all"])
-allow_user_only = auth.RoleChecker(["user"])
+allowed_users = auth.RoleChecker(["Project_Manager", "all"])
 # Base directory to store uploaded files. Files will be organized by userId and then by type.
 # Example structure: repository/user/user123/uuid-filename
 BASE_STORAGE_PATH = Path(__file__).parent.parent.parent / "repository"    
@@ -139,7 +139,7 @@ def get_file(
     file_id: str = Query(..., alias="fileId", description="The ID of the document record (from userDocuments or projectDocuments table)."),
     prefix: str = Query(..., alias="type", description="The category or type of the file (user or project)."),
     db: Session = Depends(auth.get_db),
-    user: models.User = Depends(allow_admin_only)):
+    user: models.User = Depends(allowed_users)):
    
     
     fileData = __get_file_content(file_id=file_id, prefix=prefix, db=db)
@@ -175,7 +175,7 @@ def get_all_files(
     external_id: str = Query(..., alias="id", description="The unique identifier (userId or projectId)."),
     flg_deleted: bool = Query(False, alias="flgDeleted", description="If true, includes deleted files."),
     db: Session = Depends(auth.get_db),
-    user: models.User = Depends(allow_admin_only)
+    user: models.User = Depends(allowed_users)
 
 ) -> List[Dict[str, Any]]:
    

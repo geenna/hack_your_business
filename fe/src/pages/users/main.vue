@@ -121,7 +121,7 @@ const downloadDocument = async (documentId : string) => {
 
 const getUser = async () => {
     const response = await UserService.getAllUsers()
-    users.value = response.data
+    users.value = response.data as UserProperties[]
 }
 
 const users: Ref<UserProperties[]> = ref<UserProperties[]>([])

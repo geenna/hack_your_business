@@ -29,7 +29,7 @@ def create_user(user: schemas.UserCreate, db: Session = Depends(auth.get_db), cu
         email=user.email,
         hashed_password=hashed_password,
         userType=user.userType.lower(),
-        roles=[{"action": "all", "subject": user.userType.lower()}],
+        roles=[{"action": "all", "subject": priv} for priv in (user.privilegi or [])],
         nome=user.nome,
         cognome=user.cognome,
         cf=user.cf,
@@ -80,6 +80,8 @@ def update_user(user_id: str, user: schemas.UserUpdate, db: Session = Depends(au
              setattr(db_user, 'hashed_password', auth.get_password_hash(value))
         elif key != 'password':
              setattr(db_user, key, value)
+        if key == 'privilegi':
+             setattr(db_user, 'roles', [{"action": "all", "subject": priv} for priv in value])
 
     db.commit()
     db.refresh(db_user)

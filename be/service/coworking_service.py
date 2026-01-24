@@ -44,10 +44,14 @@ def getDisponibilitaCoWorkService(db: Session, dal: date, al : date , tipologia:
     
     results = db.execute(stmt).all()
     return results
-
+'''
 def getPrenotazioniServiziByDate(db: Session,  dal: date, al : date , idServizi: List[int]) -> List[Prenotazioni]:
     
     stmt = select(Prenotazioni)\
             .join(PrenotazioneToServizi, PrenotazioneToServizi.idPrenotazione == Prenotazioni.id)\
             .where(Prenotazioni.data >= dal).where(Prenotazioni.data <= al)\
             .where(PrenotazioneToServizi.idServizio.in_(idServizi))
+    
+    results = db.execute(stmt).scalars().all()
+    return results
+'''

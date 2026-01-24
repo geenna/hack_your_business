@@ -22,5 +22,9 @@ export default {
 
     async getDisponibilitaCompleta(periodo: string, tipologia: string) {
         return api.get<DisponibilitaCompletaType[]>('/cowork/disponibilita', { params: { periodo, tipologia } })
+    },
+
+    async eliminaDisponibilita(id: string, data : string) {
+        return api.delete(`/cowork/disponibilita/${id}/${data}`)
     }
 }

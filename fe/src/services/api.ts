@@ -10,7 +10,7 @@ const api = axios.create({
         'Content-Type': 'application/json',
     },
 });
-
+const { show } = useAlert()
 
 api.interceptors.request.use(
     (config) => {
@@ -35,8 +35,7 @@ api.interceptors.response.use(
     },
     async (error) => {
         stopLoading()
-        if (error.response && (error.response.status === 401
-            || error.response.status === 403)) {
+        if (error.response && (error.response.status === 401)) {
             // Token expired or invalid
             // Clear the cookie
             const token = useCookie('accessToken');
@@ -48,8 +47,15 @@ api.interceptors.response.use(
             // Force reload to ensure clean state
             window.location.replace('/not-authorized')
         }
+        else if (error.response && (error.response.status === 403)) {
+            // Forbidden access
+            show('Attenzione', "Non sei abilitato per l'accesso alla risorsa richiesta", "error")
+        }else if(error.response && (error.response.status === 417)){
+            //la uso per errore delle credenziali
+            show('Attenzione', "Nome utente o password errati", "error")
+        }
         else {
-            const { show } = useAlert()
+
             const detail = error.response?.data?.detail
             let message = error.message || 'Si è verificato un errore imprevisto';
 

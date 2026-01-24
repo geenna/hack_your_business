@@ -47,9 +47,11 @@ const userData = ref<UserDetail>()
 provide('userData', userData)
 
 watch(selectedUserID, async (newId) => {
+
     if (newId) {
         const response = await UserService.detailUser(newId)
         userData.value = response.data
+        userData.value!.privilegi = userData.value?.roles?.map(role => role.subject) || []
     }
 }, { immediate: true })
 
@@ -116,7 +118,7 @@ watch(selectedUserID, async (newId) => {
 
           <VWindowItem>
             <UserTabDocuments />
-          </VWindowItem>  
+          </VWindowItem>
       </VWindow>
     </VCol>
   </VRow>

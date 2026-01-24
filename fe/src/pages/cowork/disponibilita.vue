@@ -85,7 +85,7 @@
          <IconBtn
             size="small"
             color="error"
-            @click="console.log('Elimina disponibilità', item)"
+            @click="eliminaDisponibilita(item)"
           >
             <VIcon icon="ri-delete-bin-7-line" />
           </IconBtn>
@@ -119,6 +119,12 @@ import { ref, Ref, onMounted } from 'vue'
 import type { ServiziModel } from '@/types/ServiziModel'
 import CoWorkingService from '@/services/CoWorkingService'
 import type { DisponibilitaCompletaType } from '@/types/DisponibilitaCompletaType'
+import { useAlert } from '@/shared/state/alert'
+import { useConfirm } from '@/shared/state/confirm'
+
+const { show: showAlert } = useAlert()
+const { show: showConfirm } = useConfirm()
+
 
 const isAddDisponibilitaDialogVisible = ref(false);
 const onSubmit = (data: {reload:boolean }) => {
@@ -188,4 +194,32 @@ const headers = [
   { title: 'Disponibilità pomeriggio', key: 'dispPomeriggio' },
   { title: 'Azioni', key: 'azioni', width: '150', align: 'center' },
 ] as any
+
+const eliminaDisponibilita = async (item: DisponibilitaCompletaType) => {
+    try {
+
+        const confirmed = await showConfirm(
+        'Confermi l\'eliminazione per il servizio scelto?',
+        `La disponibilità per la data ${new Date(item.date).toLocaleDateString()} sarà eliminata.`
+    )
+        if (confirmed) {
+            try {
+
+              let resData = await CoWorkingService.eliminaDisponibilita(item.idServizio, item.date);
+              if (resData.status === 200) {
+                showAlert('Successo', 'Disponibilità eliminata con successo', 'success');
+                loadDisponibilita();
+              } else {
+                showAlert('Errore', 'Si è verificato un errore durante l\'eliminazione.', 'error');
+              }
+
+            } catch (error) {
+                console.error('Failed to delete document:', error)
+            }
+        }
+
+    } catch (error) {
+
+    }
+};
 </script>

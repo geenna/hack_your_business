@@ -18,6 +18,7 @@ interface UserData {
   telefono: string
   stato: string
   userType: string
+  privilegi?: string[]
 }
 
 interface Props {
@@ -72,6 +73,7 @@ const refForm = ref<VForm>()
 const onSubmit = () => {
   refForm.value?.validate().then(({ valid: isValid }) => {
     if (isValid) {
+      debugger;
       if (userData.value.id) {
          UserService.updateUser(userData.value.id, userData.value).then(() => {
           emit('submit', userData.value)
@@ -178,8 +180,8 @@ const onSubmit = () => {
               />
             </VCol>
 
-           
-            
+
+
             <VCol
               cols="12"
               md="6"
@@ -262,6 +264,20 @@ const onSubmit = () => {
                 :items="['Collaboratore', 'Cliente']"
                 label="Ruolo"
                 placeholder="Seleziona Ruolo"
+                :rules="[requiredValidator]"
+              />
+            </VCol>
+             <VCol
+              cols="12"
+              md="6"
+            >
+              <VSelect
+                :disabled="userData.userType !=='Collaboratore'"
+                v-model="userData.privilegi"
+                multiple
+                :items="['Amministrativo', 'CoWorking', 'Project_Manager']"
+                label="Privilegi"
+                placeholder="Seleziona il privilegio"
                 :rules="[requiredValidator]"
               />
             </VCol>

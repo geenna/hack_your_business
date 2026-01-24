@@ -35,7 +35,7 @@ definePage({
         class="mx-auto"
       />
       <VBtn
-        to="/"
+        to="/login"
         class="mt-10"
         style="z-index: 1;"
       >

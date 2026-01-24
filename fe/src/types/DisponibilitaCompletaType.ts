@@ -1,5 +1,5 @@
 export interface DisponibilitaCompletaType {
-
+    id:string
     idServizio: string
     date: string
     numMattina: number

@@ -26,6 +26,7 @@ export interface UserDetail {
   stato: string
   user_status: string
   billing_address?: BillingAddress
+  privilegi?: string[]
 }
 
 // Keep UserProperties for backward compatibility if needed, or alias it

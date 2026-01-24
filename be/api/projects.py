@@ -13,7 +13,7 @@ from datetime import datetime
 from ..util import statistiche_progetti
 # Role Based Endpoints
 allow_admin_only = auth.RoleChecker(["all"])
-allow_user_only = auth.RoleChecker(["user"])
+allowed_project_manager = auth.RoleChecker(["Project_Manager", "all"])
 
 
 router = APIRouter(
@@ -23,7 +23,7 @@ router = APIRouter(
 
 
 @router.get("/all-projects/{user_id}", response_model=List[project_schemas.ProjectWithRelation])
-def read_users(user_id: str, db: Session = Depends(auth.get_db), user: models.User = Depends(allow_admin_only)):
+def read_users(user_id: str, db: Session = Depends(auth.get_db), user: models.User = Depends(allowed_project_manager)):
 
     results = project_service.get_projects_by_user(user_id, db)
     projects_data = []
@@ -45,7 +45,7 @@ def read_users(user_id: str, db: Session = Depends(auth.get_db), user: models.Us
     return projects_data
     
 @router.get("/user-projects/", response_model=List[project_schemas.ProjectWithRelation])
-def read_users(db: Session = Depends(auth.get_db), user: models.User = Depends(auth.get_current_user)):
+def read_users(db: Session = Depends(auth.get_db), user: models.User = Depends(allowed_project_manager)):
 
     results = project_service.get_projects_by_user(user.id, db)
     projects_data = []
@@ -68,7 +68,7 @@ def read_users(db: Session = Depends(auth.get_db), user: models.User = Depends(a
 
 
 @router.get("/user-projects-full/", response_model=dict)
-def read_users(db: Session = Depends(auth.get_db), user: models.User = Depends(allow_admin_only)):
+def read_users(db: Session = Depends(auth.get_db), user: models.User = Depends(allowed_project_manager)):
     results = project_service.get_projects_full(db, None)
     projects_map = {} # type: dict[str, project_schemas.ProjectFull]
     users_map = {}

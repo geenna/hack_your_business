@@ -22,7 +22,7 @@ def login_for_access_token(
     user = db.execute(stmt).scalars().first()
     if not user or not auth.verify_password(form_data.password, user.hashed_password):
         raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
+            status_code=417,
             detail="Incorrect username or password",
             headers={"WWW-Authenticate": "Bearer"},
         )

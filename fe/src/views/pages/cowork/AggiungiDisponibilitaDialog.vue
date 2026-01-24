@@ -78,24 +78,12 @@ const onSubmit =  async () => {
     } catch (error) {
 
     }
-
-  /*refForm.value?.validate().then(({ valid: isValid }) => {
-    if (isValid && value.value !== null) {
-      emit('submit', {
-        date: date.value,
-        value: value.value,
-        status: status.value,
-        tipoPagamento: tipoPagamento.value,
-      })
-      closeDialog()
-    }
-  })*/
 }
 
 
 
 const closeDialog = () => {
-  //emit('update:isDialogVisible', false)
+  emit('update:isDialogVisible', false)
 }
 
 

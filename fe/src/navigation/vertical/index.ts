@@ -30,8 +30,13 @@ export default [
         action: 'all',
         subject: 'CoWorking',
       },{
-        title: 'Prenotazioni',
+        title: 'Lista Prenotazioni',
         target: '_blank',
+        action: 'all',
+        subject: 'CoWorking',
+      },{
+        title: 'Nuova Prenotazione',
+         to: { name: 'cowork-nuova' },
         action: 'all',
         subject: 'CoWorking',
       }

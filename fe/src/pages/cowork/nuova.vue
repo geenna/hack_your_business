@@ -14,11 +14,11 @@ const checkoutSteps = [
     icon: customCart,
   },
   {
-    title: 'Scelta la data',
+    title: 'Scegli la data',
     icon: customAddress,
   },
   {
-    title: 'Scegli l\'utente',
+    title: 'User',
     icon: customAddress,
   },
   {
@@ -34,6 +34,11 @@ const checkoutSteps = [
 
 
 const currentStep = ref(0)
+
+const onSelezionaSpazio = (spazio: string) => {
+  console.log(spazio)
+  currentStep.value = 1
+}
 </script>
 
 <template>
@@ -58,7 +63,7 @@ const currentStep = ref(0)
         :touch="false"
       >
         <VWindowItem>
-         <SceltaSpazioPage />
+         <SceltaSpazioPage @onSelezionaSpazio="onSelezionaSpazio" />
         </VWindowItem>
 
         <VWindowItem>

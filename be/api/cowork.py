@@ -10,6 +10,7 @@ from ..persistence.schemas import UserSchema as user_schema
 from ..persistence.schemas import CoWorkSchema as cowork_schema
 from ..service.coworking_service import *
 from datetime import date, timedelta, datetime
+from calendar import monthrange
 # Role Based Endpoints
 allow_admin_only = auth.RoleChecker(["all"])
 allowed_cowork_roles = auth.RoleChecker(["all", "CoWorking"])
@@ -158,8 +159,45 @@ def getDisponibilitaCoWork(
             numPrenotazioniPomeriggio=0,
         ))
 
+    return retcode      
+
+@router.get("/disponibilita-month", status_code=200, response_model=List[cowork_schema.DisponibilitaConPrenotazioneSchema])
+def getDisponibilitaCoWorkPerIlMese(
+    data: date,
+    tipologia:str,
+    db: Session = Depends(auth.get_db),
+    user: models.User = Depends(allowed_cowork_roles)
+):
+    
+    # Parsing data
+    
+
+    # Primo e ultimo giorno del mese
+    first_day = data.replace(day=1)
+    last_day = data.replace(day=monthrange(data.year, data.month)[1])
+    disponibilita:List[tuple[Disponibilita, Servizi]] = getDisponibilitaCoWorkService(db, first_day, last_day, None, tipologia)
+    retcode: List[cowork_schema.DisponibilitaConPrenotazioneSchema] = []
+    if len(disponibilita) == 0:
+        return []
+    
+    #prenotazioni:List[Prenotazioni] = getPrenotazioniServiziByDate(db,  dal, al , [d.idServizio for d in disponibilita[0]])
+
+    for disponibilitaModel, servizioModel in disponibilita:
+       
+        retcode.append( 
+            cowork_schema.DisponibilitaConPrenotazioneSchema(
+            idServizio=disponibilitaModel.idServizio,
+            date=disponibilitaModel.date,
+            numMattina=disponibilitaModel.numMattina,
+            numPomeriggio=disponibilitaModel.numPomeriggio,
+            nomeServizio=servizioModel.nome,
+            numPrenotazioniMattina=0, 
+            numPrenotazioniPomeriggio=0,
+        ))
+
     
     return retcode      
+
 
 @router.delete("/disponibilita/{idServizio}/{data}", status_code=200)
 def eliminaDisponibilita(
@@ -170,4 +208,16 @@ def eliminaDisponibilita(
 
     data_date = datetime.strptime(data, "%Y-%m-%d").date()
     cancella_displibilita_cowork(idServizio, db, data_date, None)
+    return True
+
+
+@router.post("/prenotazione", status_code=200)
+def salvaPrenotazione(
+    prenotazione:cowork_schema.NewPrenotazioneCoWorkSchema,
+    db: Session = Depends(auth.get_db),
+    user: models.User = Depends(allowed_cowork_roles)
+):
+    
+    creaPrenotazioneCoWorkFromSchema(db, prenotazione)
+    
     return True

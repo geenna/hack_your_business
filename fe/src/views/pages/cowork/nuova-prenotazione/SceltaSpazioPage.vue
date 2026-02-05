@@ -1,11 +1,15 @@
 <script setup lang="ts">
 import emptyCartImg from '@images/pages/empty-cart.png'
-import { ref, computed } from 'vue'
+import { ServiziModel } from '@/types/ServiziModel'
+
+const props = defineProps<{
+  servizi: ServiziModel[]
+}>()
 
 const emit = defineEmits(['onSelezionaSpazio'])
 
-const selectSpace = (space: string) => {
-  emit('onSelezionaSpazio', space)
+const selectSpace = (idServizio: string, keyServizio: string) => {
+  emit('onSelezionaSpazio', idServizio, keyServizio)
 }
 </script>
 
@@ -27,10 +31,10 @@ const selectSpace = (space: string) => {
         </VAlertTitle>
 
         <p class="mb-0">
-          - 5% Se prenoti per più di 5 giorni consecutivi.
+          - 5% Se prenoti per più di 5 giorni.
         </p>
         <p class="mb-0">
-          - 15% Se prenoti per più di 15 giorni consecutivi.
+          - 15% Se prenoti per più di 15 giorni.
         </p>
       </VAlert>
 
@@ -40,220 +44,192 @@ const selectSpace = (space: string) => {
 
       <!-- 👉 Cart items -->
       <div class="border rounded">
-          <div
-            class="d-flex align-center gap-3 pa-5 position-relative flex-column flex-sm-row"
-            :class="0 ? 'border-t' : ''"
-          >
-            <IconBtn
-              size="x-small"
-              class="checkout-item-remove-btn"
-              color="disabled"
-            >
-              <VIcon
-                size="18"
-                icon="ri-close-line"
-              />
-            </IconBtn>
+          <div 
+            v-for="servizio in props.servizi.filter((servizio) => servizio.key === 'COWORK_BASE' || servizio.key === 'UFF_PRIVATO' || servizio.key === 'SALA_RIUNIONI')">
+             
+            <div  class="d-flex align-center gap-3 pa-5 position-relative flex-column flex-sm-row" :class="0 ? 'border-t' : ''" v-if="servizio.key === 'COWORK_BASE'">
+                  <div>
+                    <VImg
+                      width="140"
+                      height="140"
+                      :src="emptyCartImg"
+                      alt="Product Image"
+                    />
+                  </div>
 
-            <div>
-              <VImg
-                width="140"
-                height="140"
-                :src="emptyCartImg"
-                alt="Product Image"
-              />
+                  <div class="d-flex w-100">
+                    <div>
+                      <h6 class="text-h6 mb-2">
+                      Postazione singola coworking
+                      </h6>
+                      <div class="d-flex align-center text-no-wrap gap-2 text-base">
+                        <span class="text-disabled">Servizi inclusi</span>
+                        <VChip
+                          color="primary"
+                          size="small"
+                        >
+                        Wifi
+                        </VChip>
+                      </div>
+
+                      <div class="my-2">
+                      Descrizione spazio
+                      </div>
+                    </div>
+
+                    <VSpacer />
+
+                    <div
+                      class="d-flex flex-column mt-5"
+                    >
+                      <p class="text-base" style="width: 140px;">
+                        <span class="text-primary">{{ servizio.costoIntero }}€ al giorno</span>
+                        <br>
+                        <span class="text-primary">{{ servizio.costoRidotto }}€ mezza giornata</span>
+                      </p>
+
+                      <div>
+                        <VBtn
+                          size="small"
+                          variant="outlined"
+                          @click="selectSpace(servizio.id, servizio.key)"
+                        >
+                          Seleziona
+                        </VBtn>
+                      </div>
+                    </div>
+                  </div>
             </div>
 
-            <div class="d-flex w-100">
-              <div>
-                <h6 class="text-h6 mb-2">
-                 Postazione singola coworking
-                </h6>
-                <div class="d-flex align-center text-no-wrap gap-2 text-base">
-                  <span class="text-disabled">Servizi inclusi</span>
-                  <VChip
-                    color="primary"
-                    size="small"
-                  >
-                   Wifi
-                  </VChip>
+
+
+                <div  class="d-flex align-center gap-3 pa-5 position-relative flex-column flex-sm-row" :class="0 ? 'border-t' : ''" v-if="servizio.key === 'UFF_PRIVATO'">
+                  <div>
+                    <VImg
+                      width="140"
+                      height="140"
+                      :src="emptyCartImg"
+                      alt="Product Image"
+                    />
+                  </div>
+
+                  <div class="d-flex w-100">
+                    <div>
+                      <h6 class="text-h6 mb-2">
+                      Ufficio privato
+                      </h6>
+                      <div class="d-flex align-center text-no-wrap gap-2 text-base">
+                        <span class="text-disabled">Servizi inclusi</span>
+                        <VChip
+                          color="primary"
+                          size="small"
+                        >
+                        Wifi
+                        </VChip>
+                        <VChip
+                          color="primary"
+                          size="small"
+                        >
+                        Stanza singola
+                        </VChip>
+                      </div>
+
+                      <div class="my-2">
+                      Descrizione spazio
+                      </div>
+                    </div>
+
+                    <VSpacer />
+
+                    <div
+                      class="d-flex flex-column mt-5"
+                    >
+                      <p class="text-base" style="width: 140px;">
+                        <span class="text-primary">{{ servizio.costoIntero }}€ al giorno</span>
+                      </p>
+
+                      <div>
+                        <VBtn
+                          size="small"
+                          variant="outlined"
+                          @click="selectSpace(servizio.id, servizio.key)"  
+                        >
+                          Seleziona
+                        </VBtn>
+                      </div>
+                    </div>
+                  </div>
                 </div>
 
-                <div class="my-2">
-                 Descrizione spazio
+                <div  class="d-flex align-center gap-3 pa-5 position-relative flex-column flex-sm-row" :class="0 ? 'border-t' : ''" v-if="servizio.key === 'SALA_RIUNIONI'">
+                  <div>
+                    <VImg
+                      width="140"
+                      height="140"
+                      :src="emptyCartImg"
+                      alt="Product Image"
+                    />
+                  </div>
+
+                  <div class="d-flex w-100">
+                    <div>
+                      <h6 class="text-h6 mb-2">
+                      Sala Riunioni
+                      </h6>
+                      <div class="d-flex align-center text-no-wrap gap-2 text-base">
+                        <span class="text-disabled">Servizi inclusi</span>
+                        <VChip
+                          color="primary"
+                          size="small"
+                        >
+                        Wifi
+                        </VChip>
+                        <VChip
+                          color="primary"
+                          size="small"
+                        >
+                        Stanza singola
+                        </VChip> <VChip
+                          color="primary"
+                          size="small"
+                        >
+                        Fino a 12 persone
+                        </VChip>
+                      </div>
+
+                      <div class="my-2">
+                      Descrizione spazio
+                      </div>
+                    </div>
+
+                    <VSpacer />
+
+                    <div
+                      class="d-flex flex-column mt-5"
+                    >
+                      <p class="text-base" style="width: 140px;">
+                        <span class="text-primary">{{ servizio.costoIntero }}€ al giorno</span>
+                      </p>
+
+                      <div>
+                        <VBtn
+                          size="small"
+                          variant="outlined"
+                          @click="selectSpace(servizio.id, servizio.key)"
+                        >
+                          Seleziona
+                        </VBtn>
+                      </div>
+                    </div>
+                  </div>
                 </div>
-              </div>
+          
+          
+       
 
-              <VSpacer />
-
-              <div
-                class="d-flex flex-column mt-5"
-              >
-                <p class="text-base" style="width: 140px;">
-                  <span class="text-primary">10€ al giorno</span>
-                  <br>
-                  <span class="text-primary">9€ mezza giornata</span>
-                </p>
-
-                <div>
-                  <VBtn
-                    size="small"
-                    variant="outlined"
-                     @click="selectSpace('postazione-singola')"
-                  >
-                    Seleziona
-                  </VBtn>
-                </div>
-              </div>
-            </div>
+        
           </div>
-             <div
-            class="d-flex align-center gap-3 pa-5 position-relative flex-column flex-sm-row"
-            :class="0 ? 'border-t' : ''"
-          >
-            <IconBtn
-              size="x-small"
-              class="checkout-item-remove-btn"
-              color="disabled"
-            >
-              <VIcon
-                size="18"
-                icon="ri-close-line"
-              />
-            </IconBtn>
-
-            <div>
-              <VImg
-                width="140"
-                height="140"
-                :src="emptyCartImg"
-                alt="Product Image"
-              />
-            </div>
-
-            <div class="d-flex w-100">
-              <div>
-                <h6 class="text-h6 mb-2">
-                 Ufficio privato
-                </h6>
-                <div class="d-flex align-center text-no-wrap gap-2 text-base">
-                  <span class="text-disabled">Servizi inclusi</span>
-                  <VChip
-                    color="primary"
-                    size="small"
-                  >
-                   Wifi
-                  </VChip>
-                   <VChip
-                    color="primary"
-                    size="small"
-                  >
-                   Stanza singola
-                  </VChip>
-                </div>
-
-                <div class="my-2">
-                 Descrizione spazio
-                </div>
-              </div>
-
-              <VSpacer />
-
-              <div
-                class="d-flex flex-column mt-5"
-              >
-                <p class="text-base" style="width: 140px;">
-                  <span class="text-primary">40€ al giorno</span>
-                </p>
-
-                <div>
-                  <VBtn
-                    size="small"
-                    variant="outlined"
-                    @click="selectSpace('ufficio-privato')"  
-                  >
-                    Seleziona
-                  </VBtn>
-                </div>
-              </div>
-            </div>
-          </div>
-              <div
-            class="d-flex align-center gap-3 pa-5 position-relative flex-column flex-sm-row"
-            :class="0 ? 'border-t' : ''"
-          >
-            <IconBtn
-              size="x-small"
-              class="checkout-item-remove-btn"
-              color="disabled"
-            >
-              <VIcon
-                size="18"
-                icon="ri-close-line"
-              />
-            </IconBtn>
-
-            <div>
-              <VImg
-                width="140"
-                height="140"
-                :src="emptyCartImg"
-                alt="Product Image"
-              />
-            </div>
-
-            <div class="d-flex w-100">
-              <div>
-                <h6 class="text-h6 mb-2">
-                 Sala Riunioni
-                </h6>
-                <div class="d-flex align-center text-no-wrap gap-2 text-base">
-                  <span class="text-disabled">Servizi inclusi</span>
-                  <VChip
-                    color="primary"
-                    size="small"
-                  >
-                   Wifi
-                  </VChip>
-                   <VChip
-                    color="primary"
-                    size="small"
-                  >
-                   Stanza singola
-                  </VChip> <VChip
-                    color="primary"
-                    size="small"
-                  >
-                   Fino a 12 persone
-                  </VChip>
-                </div>
-
-                <div class="my-2">
-                 Descrizione spazio
-                </div>
-              </div>
-
-              <VSpacer />
-
-              <div
-                class="d-flex flex-column mt-5"
-              >
-                <p class="text-base" style="width: 140px;">
-                  <span class="text-primary">140€ al giorno</span>
-                </p>
-
-                <div>
-                  <VBtn
-                    size="small"
-                    variant="outlined"
-                    @click="selectSpace('sala-riunioni')"
-                  >
-                    Seleziona
-                  </VBtn>
-                </div>
-              </div>
-            </div>
-          </div>
+        
       </div>
 
 

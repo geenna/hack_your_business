@@ -1,6 +1,7 @@
 import { DisponibilitaCompletaType } from '@/types/DisponibilitaCompletaType'
 import api from './api'
 import type { ServiziModel } from '@/types/ServiziModel'
+import { NuovaPrenotazioneModel } from '@/types/NuovaPrenotazioneModel'
 
 export default {
 
@@ -24,7 +25,15 @@ export default {
         return api.get<DisponibilitaCompletaType[]>('/cowork/disponibilita', { params: { periodo, tipologia } })
     },
 
-    async eliminaDisponibilita(id: string, data : string) {
+    async getDisponibilitaPerIlMese(data: string, tipologia: string) {
+        return api.get<DisponibilitaCompletaType[]>('/cowork/disponibilita-month', { params: { data, tipologia } })
+    },
+
+    async eliminaDisponibilita(id: string, data: string) {
         return api.delete(`/cowork/disponibilita/${id}/${data}`)
+    },
+
+    async createPrenotazione(prenotazione: NuovaPrenotazioneModel) {
+        return api.post('/cowork/prenotazione', prenotazione)
     }
 }

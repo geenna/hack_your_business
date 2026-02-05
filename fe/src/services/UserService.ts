@@ -1,8 +1,9 @@
+import { UserProperties } from '@/types/UserProperties'
 import api from './api'
 
 export default {
     async getAllUsers() {
-        return api.get('/users')
+        return api.get<UserProperties[]>('/users')
     },
     async getCollaborators() {
         return api.get('/users/collaborators')
@@ -27,6 +28,9 @@ export default {
     },
     async changePassword(id: string, password: string) {
         return api.put(`/users/${id}/change-password`, { password })
+    },
+    async getAllUsersFromEmail(email: string) {
+        return api.get<UserProperties[]>(`/users-by-email?email=${email}`)
     },
 
 }

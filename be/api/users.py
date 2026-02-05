@@ -11,7 +11,7 @@ from ..service import billing_service
 # Role Based Endpoints
 allow_admin_only = auth.RoleChecker(["all"])
 allow_user_only = auth.RoleChecker(["user"])
-
+allowed_cowork_roles = auth.RoleChecker(["all", "CoWorking"])
 
 router = APIRouter(
     tags=["users"]
@@ -128,6 +128,12 @@ def read_collaborators(db: Session = Depends(auth.get_db), user: models.User = D
 @router.get("/users/clienti", response_model=List[schemas.UserResponse])
 def read_clienti(db: Session = Depends(auth.get_db), user: models.User = Depends(allow_admin_only)):
     stmt = select(models.User).where(models.User.userType == 'cliente')
+    users = db.execute(stmt).scalars().all()
+    return users
+
+@router.get("/users-by-email", response_model=List[schemas.UserResponse])
+def read_users_by_email(email: str, db: Session = Depends(auth.get_db), user: models.User = Depends(allowed_cowork_roles)):
+    stmt = select(models.User).where(models.User.email.like(f"%{email}%"))
     users = db.execute(stmt).scalars().all()
     return users
     

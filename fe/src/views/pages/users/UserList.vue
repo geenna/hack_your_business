@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { UserProperties } from '@/types/UserProperties'
 import CreateUserDialog from './CreateUserDialog.vue'
+import { resolveUserRoleVariant, resolveUserStatusVariant } from '@/utils/utility'
 
 const emit = defineEmits(['onDetailUser'])
 // 👉 Store
@@ -45,41 +46,12 @@ const status = [
   { title: 'Disattivo', value: 'inactive' },
 ]
 
-const resolveUserRoleVariant = (role: string) => {
-  const roleLowerCase = role.toLowerCase()
 
-  if (roleLowerCase === 'cliente')
-    return { color: 'success', icon: 'ri-user-line' }
-  if (roleLowerCase === 'collaboratore')
-    return { color: 'info', icon: 'ri-pie-chart-line' }
-  if (roleLowerCase === 'admin')
-    return { color: 'primary', icon: 'ri-vip-crown-line' }
-
-  return { color: 'success', icon: 'ri-user-line' }
-}
-
-const resolveUserStatusVariant = (role: string) => {
-  const roleLowerCase = role.toLowerCase()
-
-  if (roleLowerCase === 'disattivo')
-    return 'error'
-
-  return 'primary'
-
-}
 
 
 const isAddNewUserDrawerVisible = ref(false)
 
-// 👉 Add new user
-const addNewUser = async () => {
 
-}
-
-// 👉 Delete user
-const deleteUser = async (id: number) => {
-
-}
 
 const users = inject<Ref<UserProperties[]>>('users')
 
@@ -160,7 +132,6 @@ const isUserCreateDialogVisible = ref(false)
     </div>
 
     <VCard
-      title="Filters"
       class="mb-6"
     >
       <VCardText>
@@ -173,8 +144,8 @@ const isUserCreateDialogVisible = ref(false)
           >
             <VSelect
               v-model="selectedRole"
-              label="Select Role"
-              placeholder="Select Role"
+              label="Ruolo"
+              placeholder="Ruolo"
               :items="roles"
               clearable
               clear-icon="ri-close-line"

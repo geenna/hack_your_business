@@ -53,16 +53,19 @@ const currentStep = ref(0)
 const onSelezionaSpazio = (idServizio: string, keyServizio: string) => {
   nuovaPrenotazione.value.idServizioSelezionato = idServizio
   nuovaPrenotazione.value.tipologia = keyServizio
+  maxStepAvailable.value = 1
   currentStep.value = 1
 }
 
 const onSelezionaGiorno = () => {
   console.log(nuovaPrenotazione.value)
+  maxStepAvailable.value = 2
   currentStep.value = 2
 }
 const onAddUser = (user: any) => {
     nuovaPrenotazione.value.userId = user.id
     console.log(nuovaPrenotazione.value)
+    maxStepAvailable.value = 3
     currentStep.value = 3
 }
 const servizi:Ref<ServiziModel[]> = ref<ServiziModel[]>([])
@@ -76,10 +79,11 @@ const loadServizi = async () => {
   }
 }
 const onSave = () => {
-    console.log(nuovaPrenotazione.value)
+    
     CoWorkingService.createPrenotazione(nuovaPrenotazione.value)
       .then((response:any) => {
         if(response.status === 200){
+            maxStepAvailable.value = 4
             currentStep.value = 4
 
         }
@@ -88,9 +92,22 @@ const onSave = () => {
     })
 }
 
+const maxStepAvailable = ref(0)
 onMounted(() => {
   loadServizi()
 })
+const isCurrentStepValid = ref(true)
+
+watch(currentStep, (newStep:number, oldStep:number) => {
+
+  if(maxStepAvailable.value == 4){
+   currentStep.value = 4 
+  }
+  else if(newStep > maxStepAvailable.value){
+    currentStep.value = oldStep
+  }
+})
+
 </script>
 
 <template>
@@ -100,8 +117,7 @@ onMounted(() => {
       <AppStepper
         v-model:current-step="currentStep"
         :items="checkoutSteps"
-        :direction="$vuetify.display.mdAndUp ? 'horizontal' : 'vertical'"
-        :isActiveStepValid=true
+        :direction="$vuetify.display.mdAndUp ? 'horizontal' : 'vertical'"       
       />
     </VCardText>
 
@@ -112,7 +128,7 @@ onMounted(() => {
       <VWindow
         v-model="currentStep"
         class="disable-tab-transition"
-        :touch="false"
+        
       >
         <VWindowItem>
          <SceltaSpazioPage @onSelezionaSpazio="onSelezionaSpazio" :servizi="servizi"/>

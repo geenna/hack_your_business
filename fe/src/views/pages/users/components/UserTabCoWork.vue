@@ -8,6 +8,7 @@ onMounted(() => {
 })  
 
 const items = ref([]) as any
+
 const loadDati = async () => {
   const response = await CoWorkingService.getNextUserCoWorkings()
   if(response.status == 200){
@@ -67,16 +68,16 @@ const dettaglioPrenotazione = (item: any) => {
       class="text-no-wrap rounded-0"
     >
         <template #item.data="{ item }">
-            {{ new Date(item.data).toLocaleDateString() }}
+            {{ new Date((item as any).data).toLocaleDateString() }}
         </template>
         <template #item.spazio="{ item }">
-            <VChip v-if="item.servizi.find((s: any) => s.key === 'COWORK_BASE') !== undefined" label size="small" color="primary" >
+            <VChip v-if="(item as any).servizi.find((s: any) => s.key === 'COWORK_BASE') !== undefined" label size="small" color="primary" >
                 COWORK
             </VChip>
-            <VChip v-if="item.servizi.find((s: any) => s.key === 'UFF_PRIVATO') !== undefined" label size="small" color="secondary" >
+            <VChip v-if="(item as any).servizi.find((s: any) => s.key === 'UFF_PRIVATO') !== undefined" label size="small" color="secondary" >
                 UFFICIO PRIVATO
             </VChip>
-            <VChip v-if="item.servizi.find((s: any) => s.key === 'SALA_RIUNIONI') !== undefined" label size="small" color="success" >
+            <VChip v-if="(item as any).servizi.find((s: any) => s.key === 'SALA_RIUNIONI') !== undefined" label size="small" color="success" >
                 SALA RIUNIONI
             </VChip>
           </template>  

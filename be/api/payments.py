@@ -77,7 +77,7 @@ def get_user_payments(
         payment_models.Payment.userId == userId,
         payment_models.Payment.date >= fromDate,
         payment_models.Payment.date <= toDate
-    )
+    ).order_by(payment_models.Payment.date.desc())
     payments = db.execute(stmt).scalars().all()
     return payments
 

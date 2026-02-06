@@ -122,10 +122,6 @@ def getDisponibilitaCompletaByDate(db: Session, date: List[date], servizioId: st
     
     return mappa_disponibilita
     
-
-
-
-
 def creaPrenotazioneCoWorkFromSchema(db: Session, prenotazione: cowork_schema.NewPrenotazioneCoWorkSchema):
     
     mappaDisponibilitaReale = getDisponibilitaCompletaByDate(db, [datetime.strptime(d, "%Y-%m-%d").date() for d in prenotazione.date], prenotazione.idServizioSelezionato)
@@ -166,7 +162,6 @@ def creaPrenotazioneCoWorkFromSchema(db: Session, prenotazione: cowork_schema.Ne
 
     return True
     
-
 def getPrenotazioniServiziByDate(db: Session,  dal: date, al : date , idServizi: int) -> List[Prenotazioni]:
     
     stmt = select(Prenotazioni)\
@@ -224,3 +219,46 @@ def deletePrenotazione(db: Session, id: str):
     
     db.commit()
     return True
+
+def getUserCoWorkings(db: Session, userId: str, dal: date, al: date):
+    # Fetch Prenotazioni + User
+    stmt = select(Prenotazioni, User).join(User, Prenotazioni.userId == User.id)\
+        .where(Prenotazioni.userId == userId)\
+        .where(Prenotazioni.data >= dal)\
+        .where(Prenotazioni.data <= al)\
+        .order_by(Prenotazioni.data)
+    
+    results = db.execute(stmt).all()
+    
+    if not results:
+        return []
+
+    prenotazioni_map = {}
+    for pren, user in results:
+        prenotazioni_map[pren.id] = {
+            "id": pren.id,
+            "data": pren.data,
+            "flgMattina": pren.flgMattina,
+            "flgPomeriggio": pren.flgPomeriggio,
+            "pin": pren.pin,
+            "wifiAccess": pren.wifiAccess,
+            "servizi": []
+        }
+
+    pren_ids = list(prenotazioni_map.keys())
+
+    # Fetch services
+    stmt_servizi = select(PrenotazioneToServizi.idPrenotazione, Servizi)\
+        .join(Servizi, PrenotazioneToServizi.idServizio == Servizi.id)\
+        .where(PrenotazioneToServizi.idPrenotazione.in_(pren_ids))
+    
+    servizi_results = db.execute(stmt_servizi).all()
+
+    for pren_id, servizio in servizi_results:
+        if pren_id in prenotazioni_map:
+            # Convert ORM model to Pydantic schema
+            servizio_schema = cowork_schema.ServiziCoWorkSchema.model_validate(servizio)
+            prenotazioni_map[pren_id]["servizi"].append(servizio_schema)
+
+    return list(prenotazioni_map.values())
+

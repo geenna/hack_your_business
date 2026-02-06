@@ -5,9 +5,9 @@ import UserBioPanel from '@/views/pages/users/components/UserBioPanel.vue'
 import UserTabOverview from '@/views/pages/users/components/UserTabOverview.vue'
 import UserTabSecurity from '@/views/pages/users/components/UserTabSecurity.vue'
 import UserTabBillingsPlans from '@/views/pages/users/components/UserTabBillingsPlans.vue'
-import UserTabNotifications from '@/views/pages/users/components/UserTabNotifications.vue'
 import UserTabProjects from '@/views/pages/users/components/UserTabProjects.vue'
 import UserTabDocuments from '@/views/pages/users/components/UserTabDocuments.vue'
+import UserTabCoWork from '@/views/pages/users/components/UserTabCoWork.vue'
 import type { UserDetail } from '@/types/UserProperties'
 
 const selectedUserID = inject('selectedUserID') as Ref<string>
@@ -109,7 +109,7 @@ watch(selectedUserID, async (newId) => {
         </VWindowItem>
 
         <VWindowItem>
-          <UserTabNotifications />
+          <UserTabCoWork />
         </VWindowItem>
 
           <VWindowItem>

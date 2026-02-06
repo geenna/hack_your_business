@@ -70,16 +70,34 @@
       </template>
 
       <template #item.dispMattina="{ item }">
-          <span>- Totale: {{ item.numMattina }}</span><br>
-          <span>- Residua: {{ item.numMattina - item.numPrenotazioniMattina }}</span><br>
-          <span>- Num Prenotazioni: {{ item.numPrenotazioniMattina  }}</span>
-      </template>
+      <v-table density="compact" class="subtable">
+        <tbody>
+           <tr :class="item.numMattina - item.numPrenotazioniMattina > 0 ? '' : 'text-error'">
+            <td class="label">Liberi</td>
+            <td class="value">{{ item.numMattina - item.numPrenotazioniMattina }}</td>
+          </tr>
+          <tr>
+            <td class="label">Prenotati</td>
+            <td class="value">{{ item.numPrenotazioniMattina }}</td>
+          </tr>
+        </tbody>
+      </v-table>
+</template>
 
-      <template #item.dispPomeriggio="{ item }">
-          <span>- Totale: {{ item.numPomeriggio }}</span><br>
-          <span>- Residua: {{ item.numPomeriggio - item.numPrenotazioniPomeriggio }}</span><br>
-          <span>- Num. Prenotazioni: {{ item.numPrenotazioniPomeriggio  }}</span>
-      </template>
+<template #item.dispPomeriggio="{ item }">
+  <v-table density="compact" class="subtable">
+      <tbody>
+        <tr :class="item.numPomeriggio - item.numPrenotazioniPomeriggio > 0 ? '' : 'text-error'">
+          <td class="label">Liberi</td>
+          <td class="value">{{ item.numPomeriggio - item.numPrenotazioniPomeriggio }}</td>
+        </tr>
+        <tr>
+          <td class="label">Prenotati</td>
+          <td class="value">{{ item.numPrenotazioniPomeriggio }}</td>
+        </tr>
+      </tbody>
+  </v-table>
+</template>
 
       <template #item.azioni="{ item }">
          <IconBtn
@@ -100,6 +118,27 @@
 </template>
 
 <style lang="scss">
+.subtable {
+  width: 100%;
+  background: transparent;
+}
+
+.subtable :deep(td) {
+  padding: 2px 6px;
+  border-bottom: 0 !important;
+  vertical-align: top;
+}
+
+.subtable .label {
+  opacity: 0.8;
+  white-space: nowrap;
+}
+
+.subtable .value {
+  text-align: right;
+  font-weight: 600;
+}
+
 .app-user-search-filter {
   inline-size: 24.0625rem;
 }
@@ -188,11 +227,11 @@ const loadServiziPresenti = async () => {
 };
 
 const headers = [
-  { title: 'Data', key: 'date' },
-  { title: 'Nome Servizio', key: 'nomeServizio' },
-  { title: 'Disponibilità mattina', key: 'dispMattina' },
-  { title: 'Disponibilità pomeriggio', key: 'dispPomeriggio' },
-  { title: 'Azioni', key: 'azioni', width: '150', align: 'center' },
+  { title: 'Data', key: 'date', sortable:false },
+  { title: 'Nome Servizio', key: 'nomeServizio', sortable:false },
+  { title: 'Disponibilità mattina', key: 'dispMattina' , sortable:false},
+  { title: 'Disponibilità pomeriggio', key: 'dispPomeriggio' , sortable:false},
+  { title: 'Azioni', key: 'azioni', width: '150', align: 'center', sortable:false },
 ] as any
 
 const eliminaDisponibilita = async (item: DisponibilitaCompletaType) => {

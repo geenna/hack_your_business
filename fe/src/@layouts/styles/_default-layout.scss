@@ -33,3 +33,13 @@ body {
     display: none;
   }
 }
+
+/* Evidenzia tutta la riga al passaggio del mouse */
+:deep(.v-data-table tbody tr:hover) {
+  background-color: rgba(var(--v-theme-on-surface), 0.06);
+}
+
+/* opzionale: animazione morbida */
+:deep(.v-data-table tbody tr) {
+  transition: background-color 0.15s ease;
+}

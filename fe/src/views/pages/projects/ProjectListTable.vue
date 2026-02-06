@@ -81,7 +81,7 @@ const resolveUserProgressVariant = (progress:number) => {
 <template>
   <VRow>
     <VCol cols="12">
-      <VCard title="Project List">
+      <VCard title="Progetti">
         <template #append>
           <VTextField
             v-model="search"

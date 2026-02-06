@@ -259,5 +259,15 @@ def deletePrenotazioneEndpoint(
     return None
 
 
+@router.get("/next-user-co-workings", status_code=200, response_model=List)
+def getNextUserCoWorkings(
+    db: Session = Depends(auth.get_db),
+    user: models.User = Depends(auth.get_current_user)
+):
+    if(user):
+        return getUserCoWorkings(db, user.id, date.today(), date.today() + timedelta(days=90))
+
+
+
 
     

@@ -43,5 +43,8 @@ export default {
 
     async eliminaPrenotazione(id: string) {
         return api.delete(`/cowork/prenotazioni/${id}`)
+    },
+    async getNextUserCoWorkings() {
+        return api.get('/cowork/next-user-co-workings')
     }
 }

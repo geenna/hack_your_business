@@ -1,9 +1,8 @@
 <script setup lang="ts">
 import { ref, provide } from 'vue'
-import googleHome from '@images/pages/google-home.png'
-import iphone11 from '@images/pages/iphone-11.png'
+import userInfo from '@images/svg/user-info60.svg'
 import customAddress from '@images/svg/address.svg'
-import customCart from '@images/svg/cart.svg'
+import cubeSolid from '@images/svg/3d-select-solid60.svg'
 import customPayment from '@images/svg/payment.svg'
 import customTrending from '@images/svg/trending.svg'
 import SceltaSpazioPage from '@/views/pages/cowork/nuova-prenotazione/SceltaSpazioPage.vue'
@@ -17,7 +16,7 @@ import PaymentAdminPage from '@/views/pages/cowork/nuova-prenotazione/PaymentAdm
 const checkoutSteps = [
   {
     title: 'Scegli il tuo spazio',
-    icon: customCart,
+    icon: cubeSolid,
   },
   {
     title: 'Scegli la data',
@@ -25,7 +24,7 @@ const checkoutSteps = [
   },
   {
     title: 'User',
-    icon: customAddress,
+    icon: userInfo,
   },
   {
     title: 'Payment',

@@ -15,31 +15,31 @@ export default [
     to: { name: 'project-main' },
     action: 'all',
     subject: 'Project_Manager',
-  },{
+  }, {
     title: 'CoWork',
     target: '_blank',
     icon: { icon: 'ri-organization-chart' },
     children: [{
-        title: 'Servizi',
-        to: { name: 'cowork-servizi' },
-        action: 'all',
-        subject: 'CoWorking',
-    },{
-        title: 'Disponibilità',
-        to: { name: 'cowork-disponibilita' },
-        action: 'all',
-        subject: 'CoWorking',
-      },{
-        title: 'Lista Prenotazioni',
-        target: '_blank',
-        action: 'all',
-        subject: 'CoWorking',
-      },{
-        title: 'Nuova Prenotazione',
-         to: { name: 'cowork-nuova' },
-        action: 'all',
-        subject: 'CoWorking',
-      }
+      title: 'Servizi',
+      to: { name: 'cowork-servizi' },
+      action: 'all',
+      subject: 'CoWorking',
+    }, {
+      title: 'Disponibilità',
+      to: { name: 'cowork-disponibilita' },
+      action: 'all',
+      subject: 'CoWorking',
+    }, {
+      title: 'Lista Prenotazioni',
+      to: { name: 'cowork-lista' },
+      action: 'all',
+      subject: 'CoWorking',
+    }, {
+      title: 'Nuova Prenotazione',
+      to: { name: 'cowork-nuova' },
+      action: 'all',
+      subject: 'CoWorking',
+    }
     ],
   },
   {

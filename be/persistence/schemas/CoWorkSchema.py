@@ -2,6 +2,7 @@ from pydantic import BaseModel
 from datetime import date
 from typing import Optional
 from .PaymentSchema import PaymentCreate
+from .UserSchema import UserResponse
 
 class ServiziCoWorkSchema(BaseModel):
     id: str
@@ -10,6 +11,19 @@ class ServiziCoWorkSchema(BaseModel):
     costoIntero: float
     costoRidotto: float
    
+    class Config:
+        from_attributes = True
+
+class PrenotazioneCoWorkDetailSchema(BaseModel):
+    id: str
+    data: date
+    flgMattina: bool
+    flgPomeriggio: bool
+    pin: str
+    wifiAccess: str
+    user: UserResponse
+    servizi: list[ServiziCoWorkSchema]
+
     class Config:
         from_attributes = True
 

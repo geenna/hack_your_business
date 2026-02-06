@@ -11,6 +11,9 @@ from typing import List
 from ..persistence.model.DisponibilitaModel import Disponibilita
 from datetime import date, datetime
 from ..persistence.schemas import CoWorkSchema as cowork_schema
+from fastapi import HTTPException
+import random
+import string
 
 def cancella_displibilita_cowork(servizio_id: str, db: Session, dal = None, al = None):
 
@@ -57,6 +60,7 @@ def getDisponibilitaGiorniServizio(db: Session, giorni: List[date] , servizioId:
             .where(Disponibilita.idServizio == servizioId)
 
     results = db.execute(stmt).all()
+
     if(len(results) == 0):
         return []
     
@@ -64,7 +68,7 @@ def getDisponibilitaGiorniServizio(db: Session, giorni: List[date] , servizioId:
 
 def getPrenotazioniGiorniServizio(db: Session, giorni: List[date] , servizioId: str) -> List[Prenotazioni]:
     
-    stmt = select(Prenotazioni)\
+    stmt = select(Prenotazioni, PrenotazioneToServizi)\
             .join(PrenotazioneToServizi, PrenotazioneToServizi.idPrenotazione == Prenotazioni.id)\
             .where(Prenotazioni.data.in_(giorni))\
             .where(PrenotazioneToServizi.idServizio == servizioId)
@@ -75,31 +79,148 @@ def getPrenotazioniGiorniServizio(db: Session, giorni: List[date] , servizioId: 
     
     return results
 
+def setPrenotazione(db: Session, prenotazione: Prenotazioni) -> Prenotazioni:
+    
+    db.add(prenotazione)
+    db.commit()
+    db.refresh(prenotazione)
+    return prenotazione
+
+def setPrenotazioneToServizi(db: Session, prenotazioneToServizi: PrenotazioneToServizi) -> PrenotazioneToServizi:
+    
+    db.add(prenotazioneToServizi)
+    db.commit()
+    db.refresh(prenotazioneToServizi)
+    return prenotazioneToServizi    
+
+def getDisponibilitaCompletaByDate(db: Session, date: List[date], servizioId: str) -> Disponibilita:
+    
+    disponibilitaServizio = getDisponibilitaGiorniServizio(db, date, servizioId)
+
+    if(disponibilitaServizio is None or len(disponibilitaServizio) == 0):
+        raise HTTPException(status_code=400, detail="Disponibilità non trovata. Riprovare a fare la prenotazione.")
+
+    disponibilitaByDate:dict[date, Disponibilita] = {d.date: d for (d, s) in disponibilitaServizio}
+    
+    prenotazioniEsistenti:List[Prenotazioni] = getPrenotazioniGiorniServizio(db, date, servizioId)
+    prenotazioniByDate: dict[date, List[Prenotazioni]] = {}
+    for (p, s) in prenotazioniEsistenti:
+        if p.data not in prenotazioniByDate:
+            prenotazioniByDate[p.data] = []
+        prenotazioniByDate[p.data].append(p)
+        
+    mappa_disponibilita = {}
+    for d, disp in disponibilitaByDate.items():
+        m = disp.numMattina
+        p = disp.numPomeriggio
+        for pren in prenotazioniByDate.get(d, []):
+            if pren.flgMattina:
+                m -= 1
+            if pren.flgPomeriggio:
+                p -= 1
+        mappa_disponibilita[d] = {"mattina": m, "pomeriggio": p}
+    
+    return mappa_disponibilita
+    
+
+
+
+
 def creaPrenotazioneCoWorkFromSchema(db: Session, prenotazione: cowork_schema.NewPrenotazioneCoWorkSchema):
     
-    disponibilita = getDisponibilitaGiorniServizio(db, [datetime.strptime(d, "%Y-%m-%d").date() for d in prenotazione.date], prenotazione.idServizioSelezionato)
+    mappaDisponibilitaReale = getDisponibilitaCompletaByDate(db, [datetime.strptime(d, "%Y-%m-%d").date() for d in prenotazione.date], prenotazione.idServizioSelezionato)
 
-    if(disponibilita is None or len(disponibilita) == 0):
-        return None
-    if(len(disponibilita) != len(prenotazione.date)):
-        return None
+    pinAccesso = random.randint(100000, 999999)
+    wifiAccess = ''.join(random.choices(string.ascii_letters + string.digits, k=random.randint(8, 12)))
 
-    prenotazioni = getPrenotazioniGiorniServizio(db, [datetime.strptime(d, "%Y-%m-%d").date() for d in prenotazione.date], prenotazione.idServizioSelezionato)
+    for item in prenotazione.date:    
+        flgMattina = False
+        flgPomeriggio = False
+
+        if(prenotazione.turno == "INTERO_GIORNO" or prenotazione.turno == "MATTINA"):
+            flgMattina = True
+        if(prenotazione.turno == "INTERO_GIORNO" or prenotazione.turno == "POMERIGGIO"):
+            flgPomeriggio = True
+        
+        current_date = datetime.strptime(item, "%Y-%m-%d").date()
+        if current_date not in mappaDisponibilitaReale or \
+           (flgMattina and mappaDisponibilitaReale[current_date]["mattina"] <= 0) or \
+           (flgPomeriggio and mappaDisponibilitaReale[current_date]["pomeriggio"] <= 0):
+            raise HTTPException(status_code=400, detail="Disponibilità non disponibile per la data o il turno selezionato.")
+        
+        
+        prenotazioneModel = Prenotazioni(
+            userId = prenotazione.userId,
+            flgMattina = flgMattina,
+            flgPomeriggio = flgPomeriggio,
+            data = datetime.strptime(item, "%Y-%m-%d").date(),
+            pin = pinAccesso,
+            wifiAccess = wifiAccess
+        )
+        prenotazioneNew = setPrenotazione(db, prenotazioneModel)
+        prenotazioneToServizi = PrenotazioneToServizi(
+            idPrenotazione = prenotazioneNew.id,
+            idServizio = prenotazione.idServizioSelezionato
+        )
+        prenotazioneToServizi = setPrenotazioneToServizi(db, prenotazioneToServizi) 
+
+    return True
     
-    prenotazioniByDate:dict[date, Prenotazioni] = {p.date: p for p in prenotazioni}
-    if(len(prenotazioniByDate) > 0):
-        print("verificare tutte le disponibilita se ci sono gia prenotazioni")
 
-    
-
-    
-
-def getPrenotazioniServiziByDate(db: Session,  dal: date, al : date , idServizi: List[int]) -> List[Prenotazioni]:
+def getPrenotazioniServiziByDate(db: Session,  dal: date, al : date , idServizi: int) -> List[Prenotazioni]:
     
     stmt = select(Prenotazioni)\
             .join(PrenotazioneToServizi, PrenotazioneToServizi.idPrenotazione == Prenotazioni.id)\
             .where(Prenotazioni.data >= dal).where(Prenotazioni.data <= al)\
-            .where(PrenotazioneToServizi.idServizio.in_(idServizi))
+            .where(PrenotazioneToServizi.idServizio == idServizi)
     
     results = db.execute(stmt).scalars().all()
     return results
+
+def getPrenotazioniWithDetailsByDate(db: Session, data: date):
+    # Fetch Prenotazioni + User
+    stmt = select(Prenotazioni, User).join(User, Prenotazioni.userId == User.id).where(Prenotazioni.data == data)
+    results = db.execute(stmt).all()
+    
+    if not results:
+        return []
+
+    prenotazioni_map = {}
+    for pren, user in results:
+        prenotazioni_map[pren.id] = {
+            "id": pren.id,
+            "data": pren.data,
+            "flgMattina": pren.flgMattina,
+            "flgPomeriggio": pren.flgPomeriggio,
+            "pin": pren.pin,
+            "wifiAccess": pren.wifiAccess,
+            "user": user,
+            "servizi": []
+        }
+
+    pren_ids = list(prenotazioni_map.keys())
+
+    # Fetch services
+    stmt_servizi = select(PrenotazioneToServizi.idPrenotazione, Servizi)\
+        .join(Servizi, PrenotazioneToServizi.idServizio == Servizi.id)\
+        .where(PrenotazioneToServizi.idPrenotazione.in_(pren_ids))
+    
+    servizi_results = db.execute(stmt_servizi).all()
+
+    for pren_id, servizio in servizi_results:
+        if pren_id in prenotazioni_map:
+            prenotazioni_map[pren_id]["servizi"].append(servizio)
+
+    return list(prenotazioni_map.values())
+
+def deletePrenotazione(db: Session, id: str):
+    # Delete relations
+    stmt_rel = delete(PrenotazioneToServizi).where(PrenotazioneToServizi.idPrenotazione == id)
+    db.execute(stmt_rel)
+    
+    # Delete reservation
+    stmt_main = delete(Prenotazioni).where(Prenotazioni.id == id)
+    db.execute(stmt_main)
+    
+    db.commit()
+    return True

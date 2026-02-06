@@ -35,5 +35,13 @@ export default {
 
     async createPrenotazione(prenotazione: NuovaPrenotazioneModel) {
         return api.post('/cowork/prenotazione', prenotazione)
+    },
+
+    async getPrenotazioni(data: string) {
+        return api.get<any[]>('/cowork/prenotazioni', { params: { data } })
+    },
+
+    async eliminaPrenotazione(id: string) {
+        return api.delete(`/cowork/prenotazioni/${id}`)
     }
 }

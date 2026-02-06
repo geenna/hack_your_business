@@ -13,7 +13,7 @@ from .persistence.schemas import UserSchema as schemas
 # CONSTANTS - CHANGE FOR PRODUCTION
 SECRET_KEY = "supersecretkeydevelopmentonly"
 ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 30
+ACCESS_TOKEN_EXPIRE_MINUTES = 3000
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")

@@ -10,7 +10,11 @@ from ..persistence.schemas import UserSchema as user_schema
 from ..persistence.schemas import CoWorkSchema as cowork_schema
 from ..service.coworking_service import *
 from datetime import date, timedelta, datetime
+from ..service.payment_service import aggiungiPagamento
 from calendar import monthrange
+import random
+from ..persistence.model import PaymentModel as payment_models
+
 # Role Based Endpoints
 allow_admin_only = auth.RoleChecker(["all"])
 allowed_cowork_roles = auth.RoleChecker(["all", "CoWorking"])
@@ -140,14 +144,18 @@ def getDisponibilitaCoWork(
 
 
     disponibilita:List[tuple[Disponibilita, Servizi]] = getDisponibilitaCoWorkService(db, dal, al, tipologia)
+    
     retcode: List[cowork_schema.DisponibilitaConPrenotazioneSchema] = []
     if len(disponibilita) == 0:
         return []
     
-    #prenotazioni:List[Prenotazioni] = getPrenotazioniServiziByDate(db,  dal, al , [d.idServizio for d in disponibilita[0]])
-
+    prenotazioni_giorno = getPrenotazioniServiziByDate(db, dal, al, disponibilita[0][0].idServizio)
+    
     for disponibilitaModel, servizioModel in disponibilita:
-       
+
+        numPrenotazioniMattina = sum(1 for p in prenotazioni_giorno if p.flgMattina and p.data == disponibilitaModel.date)
+        numPrenotazioniPomeriggio = sum(1 for p in prenotazioni_giorno if p.flgPomeriggio and p.data == disponibilitaModel.date)
+
         retcode.append( 
             cowork_schema.DisponibilitaConPrenotazioneSchema(
             idServizio=disponibilitaModel.idServizio,
@@ -155,8 +163,8 @@ def getDisponibilitaCoWork(
             numMattina=disponibilitaModel.numMattina,
             numPomeriggio=disponibilitaModel.numPomeriggio,
             nomeServizio=servizioModel.nome,
-            numPrenotazioniMattina=0, 
-            numPrenotazioniPomeriggio=0,
+            numPrenotazioniMattina=numPrenotazioniMattina, 
+            numPrenotazioniPomeriggio=numPrenotazioniPomeriggio,
         ))
 
     return retcode      
@@ -169,9 +177,6 @@ def getDisponibilitaCoWorkPerIlMese(
     user: models.User = Depends(allowed_cowork_roles)
 ):
     
-    # Parsing data
-    
-
     # Primo e ultimo giorno del mese
     first_day = data.replace(day=1)
     last_day = data.replace(day=monthrange(data.year, data.month)[1])
@@ -180,23 +185,25 @@ def getDisponibilitaCoWorkPerIlMese(
     if len(disponibilita) == 0:
         return []
     
-    #prenotazioni:List[Prenotazioni] = getPrenotazioniServiziByDate(db,  dal, al , [d.idServizio for d in disponibilita[0]])
+    prenotazioni_giorno = getPrenotazioniServiziByDate(db, first_day, last_day, disponibilita[0][0].idServizio)
 
     for disponibilitaModel, servizioModel in disponibilita:
        
+        numPrenotazioniMattina = sum(1 for p in prenotazioni_giorno if p.flgMattina and p.data == disponibilitaModel.date)
+        numPrenotazioniPomeriggio = sum(1 for p in prenotazioni_giorno if p.flgPomeriggio and p.data == disponibilitaModel.date)
+
         retcode.append( 
             cowork_schema.DisponibilitaConPrenotazioneSchema(
             idServizio=disponibilitaModel.idServizio,
             date=disponibilitaModel.date,
-            numMattina=disponibilitaModel.numMattina,
-            numPomeriggio=disponibilitaModel.numPomeriggio,
+            numMattina=disponibilitaModel.numMattina - numPrenotazioniMattina,
+            numPomeriggio=disponibilitaModel.numPomeriggio - numPrenotazioniPomeriggio,
             nomeServizio=servizioModel.nome,
             numPrenotazioniMattina=0, 
             numPrenotazioniPomeriggio=0,
         ))
 
-    
-    return retcode      
+    return retcode       
 
 
 @router.delete("/disponibilita/{idServizio}/{data}", status_code=200)
@@ -218,6 +225,39 @@ def salvaPrenotazione(
     user: models.User = Depends(allowed_cowork_roles)
 ):
     
-    creaPrenotazioneCoWorkFromSchema(db, prenotazione)
+    if( creaPrenotazioneCoWorkFromSchema(db, prenotazione)):
+        
+        aggiungiPagamento(db, 
+            payment_models.Payment(
+                userId=prenotazione.userId,
+                paymentId = f"PAY-{random.randint(100, 99999999)}",
+                value=prenotazione.pagamento.value,
+                status=prenotazione.pagamento.status.upper(),
+                date=prenotazione.pagamento.date,
+                tipoPagamento=prenotazione.pagamento.tipoPagamento.upper()
+            )
+        )
+        return True
+    else:
+        raise HTTPException(status_code=400, detail="Errore durante la creazione della prenotazione")
+
+@router.get("/prenotazioni", status_code=200, response_model=List[cowork_schema.PrenotazioneCoWorkDetailSchema])
+def getPrenotazioni(
+    data: date,
+    db: Session = Depends(auth.get_db),
+    user: models.User = Depends(allowed_cowork_roles)
+):
+    return getPrenotazioniWithDetailsByDate(db, data)
+
+@router.delete("/prenotazioni/{id}", status_code=204)
+def deletePrenotazioneEndpoint(
+    id: str,
+    db: Session = Depends(auth.get_db),
+    user: models.User = Depends(allowed_cowork_roles)
+):
+    deletePrenotazione(db, id)
+    return None
+
+
+
     
-    return True

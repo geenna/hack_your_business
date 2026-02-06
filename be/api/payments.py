@@ -8,6 +8,7 @@ from ..persistence.model import PaymentModel as payment_models
 from ..persistence.schemas import PaymentSchema as schemas
 from ..persistence.schemas import BillingAddressSchema 
 from ..service import billing_service
+from ..service.payment_service import aggiungiPagamento
 from ..persistence.model.BillingAddressModel import BillingAddressModel
 from datetime import datetime
 import random
@@ -31,13 +32,8 @@ def create_payment(payment: schemas.PaymentCreate,
         date=payment.date,
         tipoPagamento=payment.tipoPagamento.upper()
     )
-    db.add(db_payment)
-    db.commit()
-    db.refresh(db_payment)
+    aggiungiPagamento(db, db_payment)
     return db_payment
-
-    payments = db.execute(stmt).scalars().all()
-    return payments
 
 @router.put("/address-data", response_model=BillingAddressSchema.BillingAddressSchema)
 def update_billing_address(

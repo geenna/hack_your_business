@@ -45,13 +45,10 @@ export default [
   {
     title: 'Pagamenti',
     icon: { icon: 'ri-wallet-3-line' },
-    target: '_blank',
   },
   {
     title: 'Agenda',
-
     icon: { icon: 'ri-calendar-todo-line' },
     to: { name: 'calendar-main' },
-    target: '_blank',
   }
 ] as any

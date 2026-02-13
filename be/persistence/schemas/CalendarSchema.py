@@ -10,7 +10,7 @@ class Guest(BaseModel):
 
 class CalendarExtendedProps(BaseModel):
     calendar: Optional[str] = None
-    guests: List[Guest] = []
+    guests: List[str] = []
     description: Optional[str] = None
     location: Optional[str] = None
 

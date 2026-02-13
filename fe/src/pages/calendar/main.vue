@@ -86,14 +86,14 @@ const calendarApi = ref(null)
           <VDivider />
           <div class="pa-5">
             <h5 class="text-h5 mb-4">
-              Event Filters
+              Filtri
             </h5>
 
             <div class="d-flex flex-column calendars-checkbox">
               <VCheckbox
                 id="check-all-events"
                 v-model="checkAll"
-                label="View all"
+                label="Tutti"
               />
               <VCheckbox
                 v-for="(calendar, index) in store.availableCalendars"

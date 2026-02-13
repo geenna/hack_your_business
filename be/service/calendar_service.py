@@ -40,12 +40,7 @@ def get_events(db: Session, start_date: date, end_date: date, calendar_types: Op
         if guests_ids:
              users = user_service.get_users_by_ids(db, guests_ids)
              guests = [
-                 CalendarSchema.Guest(
-                     id=user.id,
-                     email=user.email,
-                     avatar=user.avatar,
-                     name=f"{user.nome} {user.cognome}"
-                 ) for user in users
+                 user.id for user in users
              ]
 
         response_events.append(

@@ -5,12 +5,7 @@ import { VForm } from 'vuetify/components/VForm'
 
 import type { Event, NewEvent } from '@/types/CalendarEvent'
 import { useCalendarStore } from './useCalendarStore'
-import avatar1 from '@images/avatars/avatar-1.png'
-import avatar2 from '@images/avatars/avatar-2.png'
-import avatar3 from '@images/avatars/avatar-3.png'
-import avatar5 from '@images/avatars/avatar-5.png'
-import avatar6 from '@images/avatars/avatar-6.png'
-import avatar7 from '@images/avatars/avatar-7.png'
+import UserService from '@/services/UserService'
 
 const props = defineProps<Props>()
 
@@ -65,15 +60,27 @@ const handleSubmit = () => {
       }
     })
 }
+const guestsOptions = ref<Array<{
+  name: string
+  idUtente: string
+}>>([])
 
-const guestsOptions = [
-  { avatar: avatar1, name: 'Jane Foster' },
-  { avatar: avatar3, name: 'Donna Frank' },
-  { avatar: avatar5, name: 'Gabrielle Robertson' },
-  { avatar: avatar7, name: 'Lori Spears' },
-  { avatar: avatar6, name: 'Sandy Vega' },
-  { avatar: avatar2, name: 'Cheryl May' },
-]
+onMounted(() => {
+  UserService.getCollaborators()
+    .then(response => {
+      if(response.status === 200){
+        response.data.forEach((user: any) => {
+          guestsOptions.value.push({
+            name: user.nome[0].toUpperCase() + '. ' + user.cognome,
+            idUtente: user.id,
+          })
+        })
+      }
+    })
+})
+
+
+
 
 // 👉 Form
 
@@ -122,7 +129,7 @@ const dialogModelValueUpdate = (val: boolean) => {
   >
     <!-- 👉 Header -->
     <AppDrawerHeaderSection
-      :title="event.id ? 'Update Event' : 'Add Event'"
+      :title="event.id ? 'Aggiorna Evanto' : 'Crea Evento'"
       @cancel="$emit('update:isDrawerOpen', false)"
     >
       <template #beforeClose>
@@ -154,8 +161,8 @@ const dialogModelValueUpdate = (val: boolean) => {
                 <VTextField
                   id="event-title"
                   v-model="event.title"
-                  label="Title"
-                  placeholder="Meeting with Jane"
+                  label="Titolo"
+                  placeholder="Incontro evento"
                   :rules="[requiredValidator]"
                 />
               </VCol>
@@ -165,8 +172,7 @@ const dialogModelValueUpdate = (val: boolean) => {
                 <VSelect
                   id="event-label"
                   v-model="event.extendedProps.calendar"
-                  label="Label"
-                  placeholder="Select Event Label"
+                  label="Destinatari"
                   :rules="[requiredValidator]"
                   :items="store.availableCalendars"
                   :item-title="item => item.label"
@@ -201,6 +207,32 @@ const dialogModelValueUpdate = (val: boolean) => {
                   </template>
                 </VSelect>
               </VCol>
+              <!-- 👉 Guests -->
+              <VCol cols="12">
+                <VSelect
+                  id="event-guests"
+                  v-if="event.extendedProps.calendar === 'Collaboratori'"
+                  v-model="event.extendedProps.guests"
+                  label="Invitati"
+                  placeholder="Seleziona invitati"
+                  :items="guestsOptions"
+                  :item-title="item => item.name"
+                  :item-value="item => item.idUtente"
+                  chips
+                  multiple
+                  eager
+                />
+              </VCol>
+
+              <!-- 👉 All day -->
+              <VCol cols="12">
+                <VSwitch
+                  id="event-all-day"
+
+                  v-model="event.allDay"
+                  label="Tutto il giorno"
+                />
+              </VCol>
 
               <!-- 👉 Start date -->
               <VCol cols="12">
@@ -209,8 +241,8 @@ const dialogModelValueUpdate = (val: boolean) => {
                   :key="JSON.stringify(startDateTimePickerConfig)"
                   v-model="event.start"
                   :rules="[requiredValidator]"
-                  label="Start date"
-                  placeholder="Select Date"
+                  label="Data inizio"
+                  placeholder="Seleziona data"
                   :config="startDateTimePickerConfig"
                 />
               </VCol>
@@ -222,21 +254,13 @@ const dialogModelValueUpdate = (val: boolean) => {
                   :key="JSON.stringify(endDateTimePickerConfig)"
                   v-model="event.end"
                   :rules="[requiredValidator]"
-                  label="End date"
-                  placeholder="Select End Date"
+                  label="Data fine"
+                  placeholder="Seleziona data fine"
                   :config="endDateTimePickerConfig"
                 />
               </VCol>
 
-              <!-- 👉 All day -->
-              <VCol cols="12">
-                <VSwitch
-                  id="event-all-day"
 
-                  v-model="event.allDay"
-                  label="All day"
-                />
-              </VCol>
 
               <!-- 👉 Event URL -->
               <VCol cols="12">
@@ -244,37 +268,21 @@ const dialogModelValueUpdate = (val: boolean) => {
                   id="event-url"
 
                   v-model="event.url"
-                  label="Event URL"
-                  placeholder="https://event.com/meeting"
+                  label="Link evento"
+                  placeholder="https://meet.google.com/xyz"
                   :rules="[urlValidator]"
                   type="url"
                 />
               </VCol>
 
-              <!-- 👉 Guests -->
-              <VCol cols="12">
-                <VSelect
-                  id="event-guests"
-
-                  v-model="event.extendedProps.guests"
-                  label="Guests"
-                  placeholder="Select guests"
-                  :items="guestsOptions"
-                  :item-title="item => item.name"
-                  :item-value="item => item.name"
-                  chips
-                  multiple
-                  eager
-                />
-              </VCol>
-
+             
               <!-- 👉 Location -->
               <VCol cols="12">
                 <VTextField
                   id="event-location"
                   v-model="event.extendedProps.location"
-                  label="Location"
-                  placeholder="Meeting room"
+                  label="Luogo"
+                  placeholder="Sala riunioni"
                 />
               </VCol>
 
@@ -283,8 +291,8 @@ const dialogModelValueUpdate = (val: boolean) => {
                 <VTextarea
                   id="event-description"
                   v-model="event.extendedProps.description"
-                  label="Description"
-                  placeholder="Meeting description"
+                  label="Descrizione"
+                  placeholder="Descrizione evento"
                 />
               </VCol>
 
@@ -294,14 +302,14 @@ const dialogModelValueUpdate = (val: boolean) => {
                   type="submit"
                   class="me-3"
                 >
-                  Submit
+                  Salva
                 </VBtn>
                 <VBtn
                   variant="outlined"
                   color="secondary"
                   @click="onCancel"
                 >
-                  Cancel
+                  Annulla
                 </VBtn>
               </VCol>
             </VRow>

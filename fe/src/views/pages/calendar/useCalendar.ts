@@ -3,7 +3,7 @@ import dayGridPlugin from '@fullcalendar/daygrid'
 import interactionPlugin from '@fullcalendar/interaction'
 import listPlugin from '@fullcalendar/list'
 import timeGridPlugin from '@fullcalendar/timegrid'
-import type { Event, NewEvent } from '../../../types/types'
+import type { Event, NewEvent } from '@/types/CalendarEvent'
 import { useConfigStore } from '@core/stores/config'
 import { useCalendarStore } from '@/views/pages/calendar/useCalendarStore'
 
@@ -149,6 +149,7 @@ export const useCalendar = (event: Ref<Event | NewEvent>, isEventHandlerSidebarA
 
   // 👉 Add event
   const addEvent = (_event: NewEvent) => {
+    debugger;
     store.addEvent(_event)
       .then(() => {
         refetchEvents()

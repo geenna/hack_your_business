@@ -107,12 +107,7 @@ def update_event(
     if updated_event.guests:
          users = user_service.get_users_by_ids(db, updated_event.guests)
          guests = [
-                 CalendarSchema.Guest(
-                     id=user.id,
-                     email=user.email,
-                     avatar=user.avatar,
-                     name=f"{user.nome} {user.cognome}"
-                 ) for user in users
+                 user.id for user in users
              ]
 
     return CalendarSchema.CalendarEventResponse(

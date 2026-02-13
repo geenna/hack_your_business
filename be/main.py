@@ -10,8 +10,9 @@ from .persistence.model import PrenotazioniModel as prenotazioni_models
 from .persistence.model import PrenotazioneToServiziModel as prenotazione_to_servizi_models
 from .persistence.model import ServiziModel as servizi_models
 from .persistence.model import DisponibilitaModel as disponibilita_models
+from .persistence.model import EventoModel as evento_models
 from .persistence.database import engine
-from .api import auth, cowork, users, payments, test_service, projects, repository
+from .api import auth, cowork, users, payments, test_service, projects, repository, calendar
 
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -24,6 +25,7 @@ prenotazioni_models.Base.metadata.create_all(bind=engine)
 prenotazione_to_servizi_models.Base.metadata.create_all(bind=engine)
 servizi_models.Base.metadata.create_all(bind=engine)
 disponibilita_models.Base.metadata.create_all(bind=engine)
+evento_models.Base.metadata.create_all(bind=engine)
 
 
 app = FastAPI(
@@ -52,6 +54,7 @@ api_router.include_router(projects.router)
 api_router.include_router(test_service.router)
 api_router.include_router(repository.router)
 api_router.include_router(cowork.router)
+api_router.include_router(calendar.router)
 
 app.include_router(api_router)
 

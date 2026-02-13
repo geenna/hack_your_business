@@ -24,7 +24,7 @@
         <VCol
            cols="4"
           >
-            <VCard :disabled="tipologia !== 'COWORK_BASE'">
+            <VCard>
               <VCardText>
                 <div class="d-flex justify-space-between">
                   <div class="d-flex flex-column gap-y-1">
@@ -42,7 +42,7 @@
           </VCol><VCol
             cols="4"
           >
-            <VCard :disabled="tipologia !== 'COWORK_BASE'">
+            <VCard>
               <VCardText>
                 <div class="d-flex justify-space-between">
                   <div class="d-flex flex-column gap-y-1">

@@ -1,7 +1,9 @@
 <script setup lang="ts">
-import { onMounted } from 'vue'
+import { onMounted, inject, ref } from 'vue'
 import CoWorkingService from '@/services/CoWorkingService'
 import { useAlert} from '@/shared/state/alert'
+
+const selectedUserID = inject('selectedUserID') as any
 
 onMounted(() => {
   loadDati()
@@ -10,7 +12,7 @@ onMounted(() => {
 const items = ref([]) as any
 
 const loadDati = async () => {
-  const response = await CoWorkingService.getNextUserCoWorkings()
+  const response = await CoWorkingService.getNextUserCoWorkings(selectedUserID?.value)
   if(response.status == 200){
     items.value = response.data
   }

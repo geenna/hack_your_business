@@ -5,16 +5,35 @@
  <section>
 
     <VCard
-      title="Filters"
       class="mb-6"
     >
-
-    <template #append>
+<VCardTitle class="d-flex align-center justify-space-between">
+      <component class="d-flex align-center gap-4 my-4" >
+        <VCheckbox
+          width="200px"
+          v-model="giornoSingolo"
+          label="Giorno singolo"
+        />
+        <AppDateTimePicker
+          v-if="giornoSingolo"
+          width="200px"
+          v-model="dataSingola"
+          label="Data"
+          placeholder="Seleziona la data"
+          :config="{ mode: 'single', format: 'dd/MM/yyyy' }"
+        />
+    </component>
+      
+      
       <VBtn size="small"
           prepend-icon="ri-add-line"
           class="mb-4" @click="isAddDisponibilitaDialogVisible = true">Aggiungi Disponibilità
       </VBtn>
-    </template>
+
+</VCardTitle>
+    
+
+   
 
       <VCardText>
 
@@ -29,7 +48,7 @@
               label="Seleziona Periodo"
               placeholder="Seleziona Periodo"
               :items="periodo"
-
+              :disabled="giornoSingolo"
             />
           </VCol>
 
@@ -41,7 +60,7 @@
               v-model="tipologiaSelezionata"
               label="Seleziona Tipologia"
               placeholder="Seleziona Tipologia"
-              :items="servizi"
+              :items="[...servizi, {id: 'ALL', nome: 'Tutto'}]"
               item-title="nome"
               item-value="id"
             />
@@ -163,8 +182,8 @@ import { useConfirm } from '@/shared/state/confirm'
 
 const { show: showAlert } = useAlert()
 const { show: showConfirm } = useConfirm()
-
-
+const giornoSingolo = ref(false)
+const dataSingola = ref('')
 const isAddDisponibilitaDialogVisible = ref(false);
 const onSubmit = (data: {reload:boolean }) => {
   if(data.reload)
@@ -199,7 +218,10 @@ const tipologia = [
 
 const loadDisponibilita = async () => {
   try {
-      const response: any = await CoWorkingService.getDisponibilitaCompleta(periodoSelezionato.value, tipologiaSelezionata.value)
+      const response: any = await CoWorkingService.getDisponibilitaCompleta(
+          giornoSingolo.value ? dataSingola.value : periodoSelezionato.value, 
+          tipologiaSelezionata.value
+        )
       if(response && response.data){
         console.log('Disponibilità caricata:', response.data)
         items.value = response.data

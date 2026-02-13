@@ -19,6 +19,7 @@ declare module 'vue-router/auto-routes' {
    */
   export interface RouteNamedMap {
     '$error': RouteRecordInfo<'$error', '/:error(.*)', { error: ParamValue<true> }, { error: ParamValue<false> }>,
+    'calendar-main': RouteRecordInfo<'calendar-main', '/calendar/main', Record<never, never>, Record<never, never>>,
     'cowork-disponibilita': RouteRecordInfo<'cowork-disponibilita', '/cowork/disponibilita', Record<never, never>, Record<never, never>>,
     'cowork-lista': RouteRecordInfo<'cowork-lista', '/cowork/lista', Record<never, never>, Record<never, never>>,
     'cowork-nuova': RouteRecordInfo<'cowork-nuova', '/cowork/nuova', Record<never, never>, Record<never, never>>,

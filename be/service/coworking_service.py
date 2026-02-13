@@ -222,7 +222,7 @@ def deletePrenotazione(db: Session, id: str):
 
 def getUserCoWorkings(db: Session, userId: str, dal: date, al: date):
     # Fetch Prenotazioni + User
-    stmt = select(Prenotazioni, User).join(User, Prenotazioni.userId == User.id)\
+    stmt = select(Prenotazioni)\
         .where(Prenotazioni.userId == userId)\
         .where(Prenotazioni.data >= dal)\
         .where(Prenotazioni.data <= al)\
@@ -234,14 +234,14 @@ def getUserCoWorkings(db: Session, userId: str, dal: date, al: date):
         return []
 
     prenotazioni_map = {}
-    for pren, user in results:
-        prenotazioni_map[pren.id] = {
-            "id": pren.id,
-            "data": pren.data,
-            "flgMattina": pren.flgMattina,
-            "flgPomeriggio": pren.flgPomeriggio,
-            "pin": pren.pin,
-            "wifiAccess": pren.wifiAccess,
+    for pren in results:
+        prenotazioni_map[pren[0].id] = {
+            "id": pren[0].id,
+            "data": pren[0].data,
+            "flgMattina": pren[0].flgMattina,
+            "flgPomeriggio": pren[0].flgPomeriggio,
+            "pin": pren[0].pin,
+            "wifiAccess": pren[0].wifiAccess,
             "servizi": []
         }
 

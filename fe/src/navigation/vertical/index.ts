@@ -51,6 +51,7 @@ export default [
     title: 'Agenda',
 
     icon: { icon: 'ri-calendar-todo-line' },
+    to: { name: 'calendar-main' },
     target: '_blank',
   }
 ] as any

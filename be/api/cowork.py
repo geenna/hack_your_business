@@ -141,6 +141,10 @@ def getDisponibilitaCoWork(
         al = dal + timedelta(days=180)
     elif(periodo == '12_MONTHS'):
         al = dal + timedelta(days=365)
+    else:
+        #periodo è una data
+        dal = datetime.strptime(periodo, "%Y-%m-%d").date()
+        al = dal
 
 
     disponibilita:List[tuple[Disponibilita, Servizi]] = getDisponibilitaCoWorkService(db, dal, al, tipologia)
@@ -261,11 +265,17 @@ def deletePrenotazioneEndpoint(
 
 @router.get("/next-user-co-workings", status_code=200, response_model=List)
 def getNextUserCoWorkings(
+    userId: str = None,
     db: Session = Depends(auth.get_db),
     user: models.User = Depends(auth.get_current_user)
 ):
-    if(user):
-        return getUserCoWorkings(db, user.id, date.today(), date.today() + timedelta(days=90))
+    
+    target_user_id = user.id
+    if user.userType == 'admin' and userId:
+        target_user_id = userId
+
+    if(target_user_id):
+        return getUserCoWorkings(db, target_user_id, date.today(), date.today() + timedelta(days=90))
 
 
 

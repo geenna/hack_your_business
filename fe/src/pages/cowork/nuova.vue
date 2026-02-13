@@ -146,7 +146,27 @@ watch(currentStep, (newStep:number, oldStep:number) => {
         </VWindowItem>
 
         <VWindowItem>
-         BBB
+          <div class="text-center py-12">
+            <VIcon
+              size="150"
+              color="success"
+              icon="ri-checkbox-circle-line"
+              class="mb-12"
+            />
+            <h5 class="text-h5 mb-2">
+              Prenotazione completata con successo
+            </h5>
+            <p class="text-body-1">
+              L'utente riceverà una email con i dettagli della prenotazione
+            </p>
+            <VBtn
+              variant="text"
+              color="primary"
+              @click="$router.push('/cowork/lista')"
+            >
+             Vai alla lista delle prenotazioni
+            </VBtn> 
+          </div>
         </VWindowItem>
       </VWindow>
     </VCardText>

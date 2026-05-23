@@ -50,7 +50,8 @@ api.interceptors.response.use(
         else if (error.response && (error.response.status === 403)) {
             // Forbidden access
             show('Attenzione', "Non sei abilitato per l'accesso alla risorsa richiesta", "error")
-        }else if(error.response && (error.response.status === 417)){
+            window.location.replace('/not-authorized')
+        } else if (error.response && (error.response.status === 417)) {
             //la uso per errore delle credenziali
             show('Attenzione', "Nome utente o password errati", "error")
         }

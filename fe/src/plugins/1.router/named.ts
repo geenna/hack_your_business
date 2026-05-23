@@ -7,16 +7,7 @@ export const redirects = [
     {
         path: '/',
         name: 'index',
-        /*redirect: (to: any) => {
-            // TODO: Get type from backend
-            const userData = useCookie<any>('userData')
-            const userRole = userData.value?.userType
-            if (userRole === 'admin')
-                return { name: 'dashboard' }
-
-
-            return { name: 'login', query: to.query }
-        },*/
+        redirect: '/welcome',
     }, {
         path: '/root',
         name: 'root',
